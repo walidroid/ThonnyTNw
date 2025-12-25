@@ -53,11 +53,8 @@ Name: "editors\ps_flag_thonny"; Description: "Drapeau Palestinian au lieu de Ukr
 Name: "editors\thonny_autosave"; Description: "Enregistrer automatiqement dans Thonny"; Types: full compact custom;
 Name: "editors\thonny_tunisiaschools" ; Description: "Générer le code PyQt5 dans Thonny / Dossier par défaut(thonny_tunisiaschools)"; Types: full compact custom;
 Name: "editors\friendly" ; Description: "Afficher une explication des erreurs dans l'assistant Thonny (thonny_friendly)"; Types: full compact custom;
-Name: "editors\themes" ; Description: "Thèmes pour Thonny(onedark , 202 , dracula)" ; Types: full compact custom;
 Name: "bac_sc"; Description: "Bibliothèques pour bac scientifiques / bac informatiques : PyQt5 / Numpy / Designer "; Types: full compact custom;
-Name: "bac_eco"; Description: "Bibliothèques pour bac économie:  pandas matplotlib xlrd xlsxwriter xlwt openpyxl"; Types: full compact custom;
-Name: "bac_eco\jupyter_lab"; Description: "Installation Jupyter Lab"; Types: full compact custom;
-Name: "bac_eco\jupyter_notebook"; Description: "Installation Jupyter Notebook"; Types: full compact custom;
+
 
 
 [Files]
@@ -72,8 +69,6 @@ Source: "depsx64\*.tar.gz" ; DestDir: "{tmp}\deps\";
 [Tasks]
 Name: "ThonnyDesktopIcon"; Description: "Créer icone bureau pour Thonny"   ; Components: "editors"
 Name: "DesignerDesktopIcon"; Description: "Créer icone bureau pour Designer"   ; Components: "bac_sc"
-Name: "LabDesktopIcon"; Description: "Créer icone bureau pour Jupyter Lab"   ; Components: "bac_eco\jupyter_lab"
-Name: "NotebookDesktopIcon"; Description: "Créer icone bureau pour Jupyter Notebook Clasique"   ; Components: "bac_eco\jupyter_notebook"
 [Icons]
 Name: "{group}\Thonny"; Filename: "{#PythonLocalInstallDir}\Scripts\thonny.exe"; IconFilename: "{#PythonLocalInstallDir}\Lib\site-packages\thonny\res\thonny.ico" ; Components: "editors"
 ;test : relying on the system vars 
@@ -83,10 +78,6 @@ Name: "{group}\QT Designer"; Filename: "{#PythonLocalInstallDir}\Lib\site-packag
 ;Name: "{group}\QT Designer2"; Filename: "pyqt5_qt5_designer.exe" ; Components: "bac_sc" 
 Name: "{autodesktop}\Thonny"; Filename: "{#PythonLocalInstallDir}\Scripts\thonny.exe"; IconFilename: "{#PythonLocalInstallDir}\Lib\site-packages\thonny\res\thonny.ico" ; Tasks: "ThonnyDesktopIcon" 
 Name: "{autodesktop}\Qt Designer"; Filename: "{#PythonLocalInstallDir}\Scripts\pyqt5_qt5_designer.exe";IconFilename: "{#PythonLocalInstallDir}\Lib\site-packages\PyQt5\Qt5\bin\Designer.exe"; Tasks: "DesignerDesktopIcon"
-Name: "{group}\Jupyter Lab"; Filename: "{#PythonLocalInstallDir}\Scripts\jupyter-lab.exe"; IconFilename: "{#PythonLocalInstallDir}\Lib\site-packages\jupyter_server\static\favicon.ico " ;WorkingDir:"C:\bac2024\"; Components: "bac_eco"
-Name: "{group}\Jupyter Notebook Clasique"; Filename: "{#PythonLocalInstallDir}\Scripts\jupyter-nbclassic.exe"; IconFilename: "{#PythonLocalInstallDir}\Lib\site-packages\jupyter_server\static\favicons\favicon-notebook.ico " ;WorkingDir:"C:\bac2024\"; Components: "bac_eco"
-Name: "{autodesktop}\Jupyter Lab"; Filename: "{#PythonLocalInstallDir}\Scripts\jupyter-lab.exe"; IconFilename: "{#PythonLocalInstallDir}\Lib\site-packages\jupyter_server\static\favicon.ico " ;WorkingDir:"C:\bac2024\"; Tasks: "LabDesktopIcon"
-Name: "{autodesktop}\Jupyter Notebook Clasique"; Filename: "{#PythonLocalInstallDir}\Scripts\jupyter-nbclassic.exe"; IconFilename: "{#PythonLocalInstallDir}\Lib\site-packages\jupyter_server\static\favicons\favicon-notebook.ico " ;WorkingDir:"C:\bac2024\"; Tasks: "NotebookDesktopIcon"
 
 [Registry]
 ;Root: HKA; Subkey: "Software\Classes\{#MyAppAssocExt}\OpenWithProgids"; ValueType: string; ValueName: "{#MyAppAssocKey}"; ValueData: ""; Flags: uninsdeletevalue
@@ -97,13 +88,11 @@ Name: "{autodesktop}\Jupyter Notebook Clasique"; Filename: "{#PythonLocalInstall
 [Run]
   
 Filename:"{tmp}\python-{#PythonVersion}-{#arch}.exe" ;Parameters:  "/passive PrependPath=1  Include_launcher=1"  ; StatusMsg:"Installation Python ... "; Description: "Description Installation Python ...  "; Components:    "python_installer"
-Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Thonny ... && {tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny esptool --upgrade --no-index --find-links {tmp}\deps --prefer-binary  >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Thonny ... "; Components: "editors"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Bibliothèques Bac Scientifiques ... && {tmp}\RefreshEnv.cmd &&  py.exe -m pip install pyqt5 numpy --upgrade --no-index --find-links {tmp}\deps --prefer-binary >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Bibliothèques Bac Scientifiques ... "; Components: "bac_sc"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Qt5 Designer ... && {tmp}\RefreshEnv.cmd &&  py.exe -m pip install pyqt5_qt5_designer --upgrade --no-index --find-links {tmp}\deps --prefer-binary >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Designer ... "; Components: "bac_sc"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title القدس لنا وكل فلسطين  &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny_palestine_flag --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Palestine Flag pour Thonny  ... "; Components: "editors\ps_flag_thonny"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Thonny Autosave... &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny-autosave --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Thonny Autosave  ... "; Components: "editors\thonny_autosave"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Thonny PyQt5 helper(thonny-tunisiaschools) ... &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny-tunisiaschools --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Thonny PyQt5 helper(thonny-tunisiaschools)   ... "; Components: "editors\thonny_tunisiaschools"
-Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Thonny Themes ... &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny-onedark thonny-202 thonny-dracula --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Thonny Themes   ... "; Components: "editors\themes"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Thonny Friendly ... &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny-friendly --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Thonny Friendly   ... "; Components: "editors\friendly"
 
 
@@ -114,5 +103,6 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
