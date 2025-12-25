@@ -10,7 +10,6 @@ pyqt5_qt5_designer == 0.0.14
 
 #thonny_palestine_flag (not in pip )
 thonny-autosave == 0.0.22
-thonny-loaduiautocomplete == 0.2.0
 thonny-tunisiaschools == 0.0.14
 
 #needed by thonny
@@ -25,7 +24,6 @@ thonny-dracula == 0.1.2
 #Thonny generic plugins
 #thonny-block-highlight == 0.3
 #as this plugin is no longer maintained , a new one is created :
-thonnyTN-block-highlight == 0.3.1
 
 #thonny linters :
 thonny-friendly == 0.0.7
@@ -47,4 +45,5 @@ openpyxl == 3.1.5
 jupyterlab == 4.3.6 
 #spécifier notebook n'est pas nécéssaire , puisque jupyterlab l'a comme dépendence
 #notebook == 7.1.3
+
 
