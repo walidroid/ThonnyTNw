@@ -51,10 +51,8 @@ Name: "python_installer"; Description: "Python {#PythonVersion}: Ne décocher ce
 Name: "editors"; Description: "Editeurs Python(Thonny seulement pour le moment )"; Types: full compact custom;
 Name: "editors\ps_flag_thonny"; Description: "Drapeau Palestinian au lieu de Ukranian dans Thonny"; Types: full compact custom;
 Name: "editors\thonny_autosave"; Description: "Enregistrer automatiqement dans Thonny"; Types: full compact custom;
-Name: "editors\thonny_loaduiautocomplete"; Description: "Détecter automatiquement les composants de l'interface graphique dans Thonny(thonny_loaduiautocomplete)"; Types: full compact custom;
 Name: "editors\thonny_tunisiaschools" ; Description: "Générer le code PyQt5 dans Thonny / Dossier par défaut(thonny_tunisiaschools)"; Types: full compact custom;
 Name: "editors\friendly" ; Description: "Afficher une explication des erreurs dans l'assistant Thonny (thonny_friendly)"; Types: full compact custom;
-Name: "editors\highlight" ; Description: "Délimiteur pour blocs dans thonny (Excellent pour débutant)" ; Types: full compact custom;
 Name: "editors\themes" ; Description: "Thèmes pour Thonny(onedark , 202 , dracula)" ; Types: full compact custom;
 Name: "bac_sc"; Description: "Bibliothèques pour bac scientifiques / bac informatiques : PyQt5 / Numpy / Designer "; Types: full compact custom;
 Name: "bac_eco"; Description: "Bibliothèques pour bac économie:  pandas matplotlib xlrd xlsxwriter xlwt openpyxl"; Types: full compact custom;
@@ -121,3 +119,4 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
