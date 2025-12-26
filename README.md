@@ -1,6 +1,8 @@
-# 🇹🇳 ThonnyTN (Version Légère / Lightweight)
+# 🇹🇳 ThonnySc (Version Légère / Lightweight)
 
-ThonnyTN est une distribution Python hors-ligne basée sur l'IDE Thonny, optimisée pour les lycées tunisiens. Cette version "Slim" a été allégée pour se concentrer sur les bases de l'algorithmique et le développement d'interfaces graphiques (GUI).
+ThonnySc est une distribution Python hors-ligne basée sur l'IDE Thonny, optimisée pour les lycées tunisiens. Cette version "Slim" a été allégée pour se concentrer sur les bases de l'algorithmique et le développement d'interfaces graphiques (GUI).
+
+# Pour Windows 10 x64 !
 
 ## 🚀 Modifications de la Version Légère
 
