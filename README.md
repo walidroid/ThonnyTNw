@@ -23,6 +23,7 @@ Cette version conserve l'essentiel pour les sections scientifiques et techniques
 * **Numpy** : Pour les calculs numériques de base.
 * **Thonny-Friendly** : Pour des explications détaillées des erreurs Python.
 * **Thonny-TunisiaSchools** : Plugin spécifique pour les dossiers par défaut et l'aide PyQt5.
+* **thonny-edulint
 
 ## 🛠️ Installation
 
