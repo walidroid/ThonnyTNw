@@ -12,10 +12,10 @@
 #define arch "amd64"
 #define PythonLocalInstallDir "%localappdata%\Programs\Python\Python"+PythonStrictVersion+"\"
 #define PythonFullInstallationExe "python-{#PythonVersion}.exe"
-#define MyAppName "ThonnyTN"
+#define MyAppName "ThonnySc"
 #define MyAppVersion tag
-#define MyAppPublisher "Selmen Arous"
-#define MyAppURL "https://selmen.tn"
+#define MyAppPublisher "Walid Jadla"
+#define MyAppURL "https://bacalgo.de"
 
 
 [Setup]
@@ -58,8 +58,6 @@ Name: "bac_sc"; Description: "Bibliothèques pour bac scientifiques / bac inform
 
 
 [Files]
-;Source: "G:\dev\python\pytn\win7x86\Windows6.1-KB2533623-x86.msu"; DestDir: "{tmp}"; Flags: ignoreversion ;
-;Source: "G:\dev\python\pytn\win7x86\Windows6.1-KB2999226-x86.msu"; DestDir: "{tmp}"; Flags: ignoreversion ; 
 Source: "python-{#PythonVersion}-{#arch}.exe"; DestDir: "{tmp}"; Flags: ignoreversion ; Components: "python_installer"
 Source: "RefreshEnv.cmd"; DestDir: "{tmp}";
 Source: "depsx64\*.whl" ; DestDir: "{tmp}\deps\";
@@ -103,6 +101,7 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
 
