@@ -54,6 +54,7 @@ Name: "editors\thonny_autosave"; Description: "Enregistrer automatiqement dans T
 Name: "editors\thonny_tunisiaschools" ; Description: "Générer le code PyQt5 dans Thonny / Dossier par défaut(thonny_tunisiaschools)"; Types: full compact custom;
 Name: "editors\friendly" ; Description: "Afficher une explication des erreurs dans l'assistant Thonny (thonny_friendly)"; Types: full compact custom;
 Name: "bac_sc"; Description: "Bibliothèques pour bac scientifiques / bac informatiques : PyQt5 / Numpy / Designer "; Types: full compact custom;
+Name: "editors\edulint"; Description: "Installer thonny-edulint (Linter pédagogique)"; Types: full compact custom;
 
 
 
@@ -92,7 +93,7 @@ Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title القدس لنا وك
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Thonny Autosave... &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny-autosave --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Thonny Autosave  ... "; Components: "editors\thonny_autosave"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Thonny PyQt5 helper(thonny-tunisiaschools) ... &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny-tunisiaschools --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Thonny PyQt5 helper(thonny-tunisiaschools)   ... "; Components: "editors\thonny_tunisiaschools"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Thonny Friendly ... &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny-friendly --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Thonny Friendly   ... "; Components: "editors\friendly"
-
+Filename:"cmd.exe"; Parameters: "/q /c mode 80,5 && title Installation de Thonny Edulint ... &&{tmp}\RefreshEnv.cmd && py.exe -m pip install thonny-edulint --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log"; StatusMsg: "Installation de Thonny Edulint ..."; Components: "editors\edulint"
 
 [Code]
 procedure InitializeWizard;
@@ -101,6 +102,7 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
 
