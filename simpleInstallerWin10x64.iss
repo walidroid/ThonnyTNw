@@ -84,6 +84,7 @@ Name: "{autodesktop}\Qt Designer"; Filename: "{#PythonLocalInstallDir}\Scripts\p
 ;Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
 ;Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
 ;Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".myp"; ValueData: ""
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "FRIENDLY_LANGUAGE"; ValueData: "fr"; Flags: preservestringtype
 [Run]
   
 Filename:"{tmp}\python-{#PythonVersion}-{#arch}.exe" ;Parameters:  "/passive PrependPath=1  Include_launcher=1"  ; StatusMsg:"Installation Python ... "; Description: "Description Installation Python ...  "; Components:    "python_installer"
@@ -102,6 +103,7 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
 
