@@ -5,17 +5,19 @@ def update_ui():
     wb = get_workbench()
     current_backend = wb.get_option("run.backend_name")
     
-    # On définit un texte explicite avec un symbole pour plus de clarté
+    # Définition du texte selon le mode
     if current_backend == "ESP32":
-        btn_text = "⚡ MODE : ESP32"
+        btn_text = "⚡ ESP32"
     else:
-        btn_text = "🐍 MODE : PYTHON 3"
+        btn_text = "🐍 PYTHON"
         
-    # On récupère la commande pour modifier son étiquette (label et caption)
-    cmd = wb.get_command("toggle_py3_esp32")
-    if cmd:
+    # CORRECTION : On accède à la commande via le workbench
+    # Thonny stocke les commandes dans _commands
+    if "toggle_py3_esp32" in wb._commands:
+        cmd = wb._commands["toggle_py3_esp32"]
+        # Mise à jour directe des attributs de l'objet commande
         cmd.caption = btn_text
-        cmd.label = btn_text
+        cmd.command_label = btn_text
 
 def switch_interpreter():
     """Bascule entre Python local et ESP32"""
@@ -28,21 +30,20 @@ def switch_interpreter():
     else:
         wb.set_option("run.backend_name", "LocalCPython")
 
-    # Redémarrage du backend pour appliquer le changement
+    # Redémarrage du backend
     try:
         wb.restart_backend(clean=True)
     except:
         pass
         
-    # Mise à jour immédiate du texte du bouton et du titre de la fenêtre
+    # Mise à jour de l'interface
     update_ui()
     wb.update_title()
 
 def load_plugin():
-    """Initialise le plugin au démarrage de Thonny"""
+    """Initialise le plugin au démarrage"""
     wb = get_workbench()
     
-    # Déterminer le texte initial selon le dernier interpréteur utilisé
     current = wb.get_option("run.backend_name")
     initial_text = "⚡ MODE : ESP32" if current == "ESP32" else "🐍 MODE : PYTHON 3"
 
@@ -51,6 +52,6 @@ def load_plugin():
         menu_name="tools",
         command_label=initial_text,
         handler=switch_interpreter,
-        caption=initial_text, # Texte qui s'affiche sur le bouton de la barre d'outils
+        caption=initial_text,
         include_in_toolbar=True
     )
