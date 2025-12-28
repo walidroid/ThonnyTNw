@@ -1,42 +1,56 @@
 from thonny import get_workbench
-from tkinter.messagebox import showinfo
 
-def switch_interpreter():
+def update_ui():
+    """Met à jour le texte du bouton selon l'interpréteur actif"""
     wb = get_workbench()
     current_backend = wb.get_option("run.backend_name")
     
-    # Define the backend names (Internal names in Thonny)
-    PYTHON_3 = "LocalCPython"
-    ESP32 = "ESP32"  # Note: Requires thonny-esp plugin to be installed
-    
-    if current_backend == PYTHON_3:
-        # Switch to ESP32
-        wb.set_option("run.backend_name", ESP32)
-        # You might want to auto-set the port if known, otherwise Thonny asks
-        msg = "Switched to ESP32"
+    # On définit un texte explicite avec un symbole pour plus de clarté
+    if current_backend == "ESP32":
+        btn_text = "⚡ MODE : ESP32"
     else:
-        # Switch back to Python 3
-        wb.set_option("run.backend_name", PYTHON_3)
-        msg = "Switched to Python 3 (Local)"
+        btn_text = "🐍 MODE : PYTHON 3"
+        
+    # On récupère la commande pour modifier son étiquette (label et caption)
+    cmd = wb.get_command("toggle_py3_esp32")
+    if cmd:
+        cmd.caption = btn_text
+        cmd.label = btn_text
 
-    # Force the backend to restart to apply changes
+def switch_interpreter():
+    """Bascule entre Python local et ESP32"""
+    wb = get_workbench()
+    current_backend = wb.get_option("run.backend_name")
+    
+    # Logique de bascule
+    if current_backend == "LocalCPython":
+        wb.set_option("run.backend_name", "ESP32")
+    else:
+        wb.set_option("run.backend_name", "LocalCPython")
+
+    # Redémarrage du backend pour appliquer le changement
     try:
         wb.restart_backend(clean=True)
     except:
-        pass # Handle cases where backend isn't running
+        pass
         
-    # Update the UI title or status
+    # Mise à jour immédiate du texte du bouton et du titre de la fenêtre
+    update_ui()
     wb.update_title()
-    print(msg) # Shows in the shell
 
 def load_plugin():
-    # Add the button to the toolbar
-    get_workbench().add_command(
+    """Initialise le plugin au démarrage de Thonny"""
+    wb = get_workbench()
+    
+    # Déterminer le texte initial selon le dernier interpréteur utilisé
+    current = wb.get_option("run.backend_name")
+    initial_text = "⚡ MODE : ESP32" if current == "ESP32" else "🐍 MODE : PYTHON 3"
+
+    wb.add_command(
         command_id="toggle_py3_esp32",
         menu_name="tools",
-        command_label="Switch Py3/ESP32",
+        command_label=initial_text,
         handler=switch_interpreter,
-        caption="ESP32 <-> Py3", # Text on the button
-        include_in_toolbar=True,
-        image=None # Or provide a path to an icon image
+        caption=initial_text, # Texte qui s'affiche sur le bouton de la barre d'outils
+        include_in_toolbar=True
     )
