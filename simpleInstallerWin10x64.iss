@@ -59,7 +59,7 @@ Name: "editors\edulint"; Description: "Installer thonny-edulint (Linter pédagog
 
 
 [Files]
-; Install into site-packages so it works for any user running this Python
+; INSTALLATION DANS SITE-PACKAGES (Accessible par Thonny directement)
 Source: "thonny_quick_switch\__init__.py"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny_quick_switch"; DestName: "__init__.py"; Flags: ignoreversion
 Source: "python-{#PythonVersion}-{#arch}.exe"; DestDir: "{tmp}"; Flags: ignoreversion ; Components: "python_installer"
 Source: "RefreshEnv.cmd"; DestDir: "{tmp}";
@@ -105,6 +105,7 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
 
