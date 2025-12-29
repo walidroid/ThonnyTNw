@@ -79,7 +79,8 @@ Name: "{group}\QT Designer"; Filename: "{#PythonLocalInstallDir}\Lib\site-packag
 ;Name: "{group}\QT Designer2"; Filename: "pyqt5_qt5_designer.exe" ; Components: "bac_sc" 
 Name: "{autodesktop}\Thonny"; Filename: "{#PythonLocalInstallDir}\Scripts\thonny.exe"; IconFilename: "{#PythonLocalInstallDir}\Lib\site-packages\thonny\res\thonny.ico" ; Tasks: "ThonnyDesktopIcon" 
 Name: "{autodesktop}\Qt Designer"; Filename: "{#PythonLocalInstallDir}\Scripts\pyqt5_qt5_designer.exe";IconFilename: "{#PythonLocalInstallDir}\Lib\site-packages\PyQt5\Qt5\bin\Designer.exe"; Tasks: "DesignerDesktopIcon"
-
+; INSTALLATION DU PLUGIN AUTOCOMPLETE (Dossier complet)
+Source: "thonny_simple_autocomplete\*"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny_simple_autocomplete"; Flags: ignoreversion recursesubdirs createallsubdirs
 [Registry]
 ;Root: HKA; Subkey: "Software\Classes\{#MyAppAssocExt}\OpenWithProgids"; ValueType: string; ValueName: "{#MyAppAssocKey}"; ValueData: ""; Flags: uninsdeletevalue
 ;Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}"; ValueType: string; ValueName: ""; ValueData: "{#MyAppAssocName}"; Flags: uninsdeletekey
@@ -105,6 +106,7 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
 
