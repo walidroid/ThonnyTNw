@@ -1,67 +1,79 @@
+import tkinter as tk
 from thonny import get_workbench
 
-def update_ui():
-    """Force la mise à jour immédiate du texte du bouton dans la barre d'outils"""
+# Noms internes des backends Thonny
+PYTHON_3 = "LocalCPython"
+ESP32 = "ESP32"
+
+def switch_to_backend(backend_name):
+    """Bascule l'interpréteur et force l'application immédiate"""
     wb = get_workbench()
-    current_backend = wb.get_option("run.backend_name")
-    
-    # Définition du texte selon le mode actif
-    if current_backend == "ESP32":
-        btn_text = "⚡ MODE : ESP32"
-    else:
-        btn_text = "🐍 MODE : PYTHON 3"
+    if wb.get_option("run.backend_name") != backend_name:
+        wb.set_option("run.backend_name", backend_name)
         
-    # 1. Mise à jour de la logique interne (pour les menus)
-    if "toggle_py3_esp32" in wb._commands:
-        cmd = wb._commands["toggle_py3_esp32"]
-        cmd.caption = btn_text
-        cmd.command_label = btn_text
-
-    # 2. Mise à jour visuelle du bouton dans la barre d'outils
-    # On récupère la barre d'outils de Thonny
-    toolbar = wb.get_toolbar()
-    for child in toolbar.winfo_children():
-        # Thonny stocke l'ID de la commande dans l'attribut 'command_id' du widget
-        if getattr(child, "command_id", None) == "toggle_py3_esp32":
-            # On change le texte du bouton Tkinter directement
-            child.config(text=btn_text)
-            break
-
-def switch_interpreter():
-    """Bascule l'interpréteur et rafraîchit l'UI"""
-    wb = get_workbench()
-    current_backend = wb.get_option("run.backend_name")
-    
-    # Changement de l'option Thonny
-    if current_backend == "LocalCPython":
-        wb.set_option("run.backend_name", "ESP32")
-    else:
-        wb.set_option("run.backend_name", "LocalCPython")
-
-    # On force le redémarrage du moteur Python
-    try:
-        wb.restart_backend(clean=True)
-    except:
-        pass
-        
-    # Mise à jour immédiate de l'affichage
-    update_ui()
-    wb.update_title()
+        # SOLUTION : On détruit l'ancien backend pour forcer Thonny 
+        # à charger le nouveau type d'interpréteur immédiatement.
+        try:
+            wb.get_runner().destroy_backend()
+        except:
+            pass
+            
+        # Redémarrage du moteur
+        wb.restart_backend()
+        wb.update_title()
 
 def load_plugin():
-    """Initialise le plugin au chargement de Thonny"""
+    """Initialise les boutons radio à droite de la barre d'outils"""
     wb = get_workbench()
+    toolbar = wb.get_toolbar()
     
-    # Détecter l'état actuel au lancement
-    current = wb.get_option("run.backend_name")
-    initial_text = "⚡ MODE : ESP32" if current == "ESP32" else "🐍 MODE : PYTHON 3"
+    # Création d'un conteneur aligné à l'extrémité droite
+    # L'utilisation de side="right" garantit qu'il est à la fin de la barre
+    frame = tk.Frame(toolbar)
+    frame.pack(side="right", padx=10)
+    
+    # Valeur initiale basée sur la configuration de Thonny
+    current_val = wb.get_option("run.backend_name")
+    var = tk.StringVar(value=current_val)
+    
+    def on_change():
+        switch_to_backend(var.get())
 
-    # Création de la commande initiale
-    wb.add_command(
-        command_id="toggle_py3_esp32",
-        menu_name="tools",
-        command_label=initial_text,
-        handler=switch_interpreter,
-        caption=initial_text,
-        include_in_toolbar=True
+    # Style des boutons radio : indicatoron=False les fait ressembler à des boutons poussoirs
+    # Un bouton reste 'enfoncé' pour indiquer le mode actif
+    rb_py = tk.Radiobutton(
+        frame, 
+        text="🐍 Python 3", 
+        variable=var, 
+        value=PYTHON_3, 
+        command=on_change,
+        indicatoron=False, 
+        relief="raised",
+        padx=8,
+        pady=2
     )
+    
+    rb_esp = tk.Radiobutton(
+        frame, 
+        text="⚡ ESP32", 
+        variable=var, 
+        value=ESP32, 
+        command=on_change,
+        indicatoron=False,
+        relief="raised",
+        padx=8,
+        pady=2
+    )
+    
+    # Placement côte à côte dans le conteneur de droite
+    rb_py.pack(side="left")
+    rb_esp.pack(side="left")
+
+    # Synchronisation : si l'utilisateur change via les menus, on met à jour les boutons
+    def sync_ui(event=None):
+        new_val = wb.get_option("run.backend_name")
+        if new_val in [PYTHON_3, ESP32]:
+            var.set(new_val)
+            
+    # Écoute de l'événement de redémarrage pour synchroniser l'UI
+    wb.bind("BackendRestarted", sync_ui, True)
