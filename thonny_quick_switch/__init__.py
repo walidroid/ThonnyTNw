@@ -6,14 +6,12 @@ PYTHON_3 = "LocalCPython"
 ESP32 = "ESP32"
 
 def switch_to_backend(backend_name):
-    """Bascule l'interpréteur et force l'application immédiate sans redémarrer Thonny"""
+    """Bascule l'interpréteur et force l'application immédiate"""
     wb = get_workbench()
     if wb.get_option("run.backend_name") != backend_name:
         wb.set_option("run.backend_name", backend_name)
         
-        # SOLUTION pour l'application immédiate : 
-        # On détruit le backend actuel (le lien avec Python) pour forcer 
-        # Thonny à recréer le bon type d'interpréteur tout de suite.
+        # On détruit le backend actuel pour forcer le changement immédiat
         try:
             runner = wb.get_runner()
             if runner:
@@ -21,35 +19,34 @@ def switch_to_backend(backend_name):
         except Exception:
             pass
             
-        # On redémarre le moteur (Backend)
         wb.restart_backend()
         wb.update_title()
 
 def create_radio_buttons():
-    """Crée les boutons dans la barre d'outils une fois que l'UI est prête"""
+    """Crée les boutons dans la barre d'outils en utilisant GRID"""
     wb = get_workbench()
     
-    # On tente de récupérer la barre d'outils
     try:
         toolbar = wb.get_toolbar()
     except Exception:
-        # Sécurité si Thonny n'a pas de barre d'outils dans cette configuration
         return
 
-    # Création d'un conteneur aligné à l'extrémité droite
-    # side="right" place les boutons après tous les autres icônes
+    # SOLUTION : Utiliser grid au lieu de pack car la toolbar de Thonny utilise grid
+    # On utilise un numéro de colonne très élevé (999) pour être à l'extrémité droite
+    # sticky="e" (East) aligne le contenu vers la droite
     frame = tk.Frame(toolbar)
-    frame.pack(side="right", padx=10)
+    frame.grid(row=0, column=999, sticky="e", padx=10)
     
-    # Valeur initiale basée sur la config Thonny
+    # On demande à la colonne d'occuper l'espace disponible si nécessaire
+    toolbar.columnconfigure(999, weight=1)
+
     current_val = wb.get_option("run.backend_name")
     var = tk.StringVar(value=current_val)
     
     def on_change():
         switch_to_backend(var.get())
 
-    # Style des boutons radio comme des "boutons poussoirs" (indicatoron=False)
-    # L'un reste enfoncé pour indiquer le mode actif
+    # À l'intérieur du frame, nous pouvons utiliser pack car le frame est vide
     rb_py = tk.Radiobutton(
         frame, 
         text="🐍 Python 3", 
@@ -74,11 +71,9 @@ def create_radio_buttons():
         pady=2
     )
     
-    # Placement côte à côte à droite
     rb_py.pack(side="left")
     rb_esp.pack(side="left")
 
-    # Synchronisation : si l'utilisateur change via les menus, on met à jour les boutons
     def sync_ui(event=None):
         new_val = wb.get_option("run.backend_name")
         if new_val in [PYTHON_3, ESP32]:
@@ -87,10 +82,7 @@ def create_radio_buttons():
     wb.bind("BackendRestarted", sync_ui, True)
 
 def load_plugin():
-    """Point d'entrée du plugin chargé par Thonny"""
+    """Charge le plugin après l'initialisation de l'interface"""
     wb = get_workbench()
-    
-    # SOLUTION pour l'AttributeError : 
-    # On utilise after_idle pour ne lancer create_radio_buttons que lorsque 
-    # Thonny a fini de charger son interface et sa toolbar.
+    # On attend que l'interface soit prête pour éviter l'AttributeError sur la toolbar
     wb.after_idle(create_radio_buttons)
