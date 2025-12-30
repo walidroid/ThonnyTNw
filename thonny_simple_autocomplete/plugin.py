@@ -49,8 +49,8 @@ def on_space_trigger(event):
         "print": ("print()", 1),
         "input": ("input()", 1),
         "randint": ("randint(,)", 2),
-        "from numpy": ("from numpy import array",0),
-        "from random": ("from random import randint",0)
+        "numpy": ("numpy import array",0),
+        "random": ("random import randint",0)
         
     }
     
