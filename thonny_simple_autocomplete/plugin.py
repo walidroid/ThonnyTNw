@@ -46,6 +46,8 @@ def on_space_trigger(event):
         "elif":  ("elif :", 1),             # Recule de 1 pour être avant :
         "else":  ("else :", 0),             # Reste à la fin
         "def":   ("def :", 1),
+        "true":  ("True",0),
+        "false":  ("False",0),
         "print": ("print()", 1),
         "input": ("input()", 1),
         "randint": ("randint(,)", 2),
