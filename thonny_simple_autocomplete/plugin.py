@@ -46,7 +46,10 @@ def on_space_trigger(event):
         "while": ("while :", 1),            # Recule de 1 pour être avant :
         "if":    ("if :", 1),               # Recule de 1 pour être avant :
         "elif":  ("elif :", 1),             # Recule de 1 pour être avant :
-        "else":  ("else :", 0)              # Reste à la fin
+        "else":  ("else :", 0),              # Reste à la fin
+        "def":   ("def :", 1),
+        "print":  ("print()",1),
+        "input":  ("input()",1)
     }
     
     if word in snippets:
