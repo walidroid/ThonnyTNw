@@ -1,11 +1,9 @@
 from thonny import get_workbench
-import tkinter as tk
 
 def init_plugin():
     wb = get_workbench()
-    # On surveille l'ouverture de Thonny et la création de nouveaux onglets
-    wb.bind("WorkbenchReady", on_ready)
-    wb.bind("EditorTextCreated", on_editor_created)
+    wb.bind("WorkbenchReady", on_ready, True)
+    wb.bind("EditorTextCreated", on_editor_created, True)
 
 def on_ready(event):
     wb = get_workbench()
@@ -14,43 +12,53 @@ def on_ready(event):
         bind_events(editor.get_text_widget())
 
 def on_editor_created(event):
-    # event.text_widget est l'éditeur de texte du nouvel onglet
     bind_events(event.text_widget)
 
 def bind_events(text_widget):
-    # On utilise <Key> qui capte TOUTES les touches de manière brute
-    # add="+" est crucial pour ne pas écraser les fonctions natives de Thonny
-    text_widget.bind("<Key>", on_key_press, add="+")
-    # On garde l'autocomplétion au relâchement
-    text_widget.bind("<KeyRelease>", on_key_release, add="+")
-
-def on_key_press(event):
-    """Gère l'insertion manuelle des paires"""
-    char = event.char
-    text_widget = event.widget
-    
-    # Dictionnaire des caractères à fermer
+    # Bind specific keys instead of generic <Key>
     pairs = {
-        "(": "()",
-        "[": "[]",
-        "'": "''",
-        '"': '""'
+        "(": ")",
+        "[": "]",
+        "'": "'",
+        '"': '"'
     }
     
-    if char in pairs:
-        # 1. On insère la paire complète à la position du curseur
-        text_widget.insert("insert", pairs[char])
-        # 2. On déplace le curseur d'un caractère vers la gauche (au milieu)
-        text_widget.mark_set("insert", "insert-1c")
-        # 3. "break" dit à Thonny d'ignorer la touche originale pour éviter d'avoir ((
-        return "break"
+    for opening in pairs:
+        text_widget.bind(opening, lambda e, o=opening, c=pairs[opening]: insert_pair(e, o, c), add="+")
+    
+    # Keep autocomplete on key release
+    text_widget.bind("<KeyRelease>", on_key_release, add="+")
+
+def insert_pair(event, opening, closing):
+    """Insert matching pair and position cursor between them"""
+    text_widget = event.widget
+    
+    # Check if there's a selection
+    try:
+        if text_widget.tag_ranges("sel"):
+            # Wrap selection with pair
+            start = text_widget.index("sel.first")
+            end = text_widget.index("sel.last")
+            selected_text = text_widget.get(start, end)
+            
+            text_widget.delete(start, end)
+            text_widget.insert(start, opening + selected_text + closing)
+            text_widget.mark_set("insert", f"{start}+{len(selected_text)+1}c")
+            return "break"
+    except:
+        pass
+    
+    # No selection: insert pair and move cursor between them
+    insert_pos = text_widget.index("insert")
+    text_widget.insert(insert_pos, opening + closing)
+    text_widget.mark_set("insert", f"{insert_pos}+1c")
+    
+    return "break"
 
 def on_key_release(event):
-    """Déclenche la liste d'autocomplétion native de Thonny"""
-    # On déclenche seulement si on tape du texte utile
+    """Trigger Thonny's native autocomplete"""
     if event.char and (event.char.isalnum() or event.char in [".", "_"]):
         try:
-            # Simule Ctrl+Espace pour ouvrir la petite liste de Thonny
-            event.widget.event_generate("<Control-space>")
-        except Exception:
+            event.widget.event_generate("<<AutoComplete>>")
+        except:
             pass
