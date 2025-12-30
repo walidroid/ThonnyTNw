@@ -59,6 +59,8 @@ Name: "editors\edulint"; Description: "Installer thonny-edulint (Linter pédagog
 
 
 [Files]
+; Force l'activation des erreurs en français dans la console (Shell)
+Source: "thonny_french_traceback.py"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny\plugins"; Flags: ignoreversion
 ; 1. Plugin Quick Switch (Fichier unique renommé)
 Source: "thonny_quick_switch\__init__.py"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny\plugins"; DestName: "thonny_quick_switch.py"; Flags: ignoreversion
 ; 2. Plugin Autocomplete (Dossier complet placé DANS thonny\plugins)
@@ -109,6 +111,7 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
 
