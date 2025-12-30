@@ -33,7 +33,12 @@ def on_key_press(event):
         "(": ")",
         "[": "]",
         "'": "'",
-        '"': '"'
+        '"': '"',
+        "while":":",
+        "if":":",
+        "else":":",
+        "elif":":",
+        "for":"i in range"
     }
     
     if char in pairs:
