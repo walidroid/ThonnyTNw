@@ -1,30 +1,39 @@
 from thonny import get_workbench
 
 def activate_french_errors(event=None):
-    """Injecte silencieusement friendly-traceback en français dans le Shell"""
+    """Force Friendly-traceback sur stdout pour contourner le filtrage de Thonny"""
     wb = get_workbench()
     runner = wb.get_runner()
     
     if runner:
-        # Script Python à exécuter dans le backend (Shell)
-        # On utilise un bloc try/except pour éviter les erreurs si le module est absent
+        # On utilise stdout (sortie normale) au lieu de stderr (sortie d'erreur)
+        # car Thonny traite parfois stderr différemment.
         script = (
             "try:\n"
             "    import friendly_traceback\n"
-            "    friendly_traceback.install()\n"
+            "    import sys\n"
+            "    \n"
+            "    # 1. Configuration\n"
             "    friendly_traceback.set_lang('fr')\n"
-            "except:\n"
-            "    pass"
+            "    \n"
+            "    # 2. On force la sortie sur le print normal (stdout)\n"
+            "    friendly_traceback.set_stream(sys.stdout)\n"
+            "    \n"
+            "    # 3. Installation explicite\n"
+            "    friendly_traceback.install(include='friendly_tb')\n"
+            "    \n"
+            "    # 4. Vérification visible (Optionnel, à retirer pour la prod)\n"
+            "    # print('Friendly activé sur stdout')\n"
+            "except Exception as e:\n"
+            "    print(f'Erreur init Friendly: {e}')"
         )
         try:
-            # L'argument silent=True empêche l'élève de voir le code passer dans la console
+            # silent=False temporairement pour voir si le script passe bien
             runner.execute_script(script, silent=True)
         except:
             pass
 
 def load_plugin():
-    """Initialise le plugin au démarrage de Thonny"""
     wb = get_workbench()
-    # On lie l'activation à l'événement 'BackendRestarted' 
-    # Cela garantit que le français est réactivé même après un "Stop/Restart"
+    # On attend un peu plus longtemps (ToplevelResponse) ou on force au restart
     wb.bind("BackendRestarted", activate_french_errors, True)
