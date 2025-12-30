@@ -19,11 +19,10 @@ def bind_events(text_widget):
     # 1. Fermeture auto des paires ( (, [, ', " )
     text_widget.bind("<KeyPress>", on_key_press, add="+")
     
-    # 2. NOUVEAU : Expansion des mots-clés avec la barre ESPACE
+    # 2. Expansion des mots-clés avec la barre ESPACE (Snippets)
     text_widget.bind("<KeyPress-space>", on_space_trigger, add="+")
     
-    # 3. Autocomplétion native au relâchement des touches
-    text_widget.bind("<KeyRelease>", on_key_release, add="+")
+    # (L'autocomplétion native <KeyRelease> a été supprimée)
 
 def on_space_trigger(event):
     """Gère l'insertion automatique des structures (for, if, while...)"""
@@ -34,7 +33,6 @@ def on_space_trigger(event):
         return
 
     # On récupère le mot juste avant le curseur
-    # "insert-1c wordstart" trouve le début du mot que l'on vient de taper
     word_start = "insert-1c wordstart"
     word = text.get(word_start, "insert")
     
@@ -46,22 +44,26 @@ def on_space_trigger(event):
         "while": ("while :", 1),            # Recule de 1 pour être avant :
         "if":    ("if :", 1),               # Recule de 1 pour être avant :
         "elif":  ("elif :", 1),             # Recule de 1 pour être avant :
-        "else":  ("else :", 0),              # Reste à la fin
+        "else":  ("else :", 0),             # Reste à la fin
         "def":   ("def :", 1),
-        "print":  ("print()",1),
-        "input":  ("input()",1)
+        "print": ("print()", 1),
+        "input": ("input()", 1),
+        "randint": ("randint(,)", 2),
+        "from numpy": ("from numpy import array",0),
+        "from random": ("from random import randint",0)
+        
     }
     
     if word in snippets:
         content, back_step = snippets[word]
         
-        # 1. Supprimer le mot-clé tapé (ex: "for")
+        # 1. Supprimer le mot-clé tapé
         text.delete(word_start, "insert")
         
         # 2. Insérer le snippet complet
         text.insert("insert", content)
         
-        # 3. Placer le curseur intelligemment (pour écrire la condition)
+        # 3. Placer le curseur intelligemment
         if back_step > 0:
             text.mark_set("insert", f"insert-{back_step}c")
             
@@ -85,12 +87,3 @@ def on_key_press(event):
         text_widget.insert("insert", char + pairs[char])
         text_widget.mark_set("insert", "insert-1c")
         return "break"
-
-def on_key_release(event):
-    """Déclenche l'autocomplétion native de Thonny"""
-    # Lettres, chiffres, point ou underscore déclenchent le menu
-    if event.char and (event.char.isalnum() or event.char in [".", "_"]):
-        try:
-            event.widget.event_generate("<Control-space>")
-        except:
-            pass
