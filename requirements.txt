@@ -23,7 +23,7 @@ wheel == 0.45.1
 
 #thonny linters :
 thonny-edulint
-friendly-traceback
+friendly-traceback >= 0.7
 thonny-friendly == 0.0.7
 #@TODO : Test those :
 #thonny-edulint
@@ -33,6 +33,7 @@ thonny-friendly == 0.0.7
 #Sections scientifiques
 
 numpy == 2.2.4
+
 
 
 
