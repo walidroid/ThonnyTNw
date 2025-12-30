@@ -59,16 +59,18 @@ Name: "editors\edulint"; Description: "Installer thonny-edulint (Linter pédagog
 
 
 [Files]
-; On installe le fichier directement dans le dossier plugins de Thonny
+; 1. Plugin Quick Switch (Fichier unique renommé)
 Source: "thonny_quick_switch\__init__.py"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny\plugins"; DestName: "thonny_quick_switch.py"; Flags: ignoreversion
+; 2. Plugin Autocomplete (Dossier complet placé DANS thonny\plugins)
+; Correction : On déplace la destination à l'intérieur de thonny\plugins
+Source: "thonny_simple_autocomplete\*"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny\plugins\thonny_simple_autocomplete"; Flags: ignoreversion recursesubdirs createallsubdirs
+; 3. Fichiers d'installation de base
 Source: "python-{#PythonVersion}-{#arch}.exe"; DestDir: "{tmp}"; Flags: ignoreversion ; Components: "python_installer"
 Source: "RefreshEnv.cmd"; DestDir: "{tmp}";
 Source: "depsx64\*.whl" ; DestDir: "{tmp}\deps\";
 Source: "depsx64\*.tar.gz" ; DestDir: "{tmp}\deps\";
-;Source: "G:\dev\python\pytn\win7x86\designer\*.*" ; DestDir: "{localappdata}\Programs\Python\Python311-32\Lib\site-packages\PyQt5\Qt5\bin\"    ; Components: "bac_sc"
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-; INSTALLATION DU PLUGIN AUTOCOMPLETE (Dossier complet)
-Source: "thonny_simple_autocomplete\*"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny_simple_autocomplete"; Flags: ignoreversion recursesubdirs createallsubdirs
+
 [Tasks]
 Name: "ThonnyDesktopIcon"; Description: "Créer icone bureau pour Thonny"   ; Components: "editors"
 Name: "DesignerDesktopIcon"; Description: "Créer icone bureau pour Designer"   ; Components: "bac_sc"
@@ -107,6 +109,7 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
 
