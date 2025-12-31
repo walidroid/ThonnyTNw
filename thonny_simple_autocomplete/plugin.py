@@ -56,8 +56,8 @@ def on_key_release_trigger(event):
         "print":   ("print()", 1),
         "input":   ("input()", 1),
         "randint": ("randint(,)", 2),
-        "numpy":   ("numpy import array", 0),
-        "random":  ("random import randint", 0),
+        "numpy":   ("numpy import array ", 0),
+        "random":  ("random import randint ", 0),
         "set":     ("setText()", 1)
     }
     
