@@ -1,6 +1,10 @@
 from thonny import get_workbench
 from tkinter import messagebox
 
+MENU_PYTHON = None
+MENU_ESP32 = None
+
+
 # -------------------------------------------------
 # Utilitaires
 # -------------------------------------------------
@@ -9,9 +13,15 @@ def get_backend():
     return get_workbench().get_option("run.backend_name")
 
 
-def update_labels():
-    """Met à jour l'affichage radio (◉ / ◯)"""
+def update_menu_labels():
+    """
+    Met à jour les symboles ◉ / ◯ dans le menu Outils
+    en utilisant Tkinter directement (méthode stable)
+    """
+    global MENU_PYTHON, MENU_ESP32
+
     wb = get_workbench()
+    tools_menu = wb.get_menu("tools")
 
     python_label = (
         "◉ Mode Python (ordinateur)"
@@ -25,8 +35,8 @@ def update_labels():
         else "◯ Mode ESP32 (carte)"
     )
 
-    wb.set_command_label("mode_python", python_label)
-    wb.set_command_label("mode_esp32", esp_label)
+    tools_menu.entryconfig(MENU_PYTHON, label=python_label)
+    tools_menu.entryconfig(MENU_ESP32, label=esp_label)
 
 
 # -------------------------------------------------
@@ -47,7 +57,7 @@ def select_python():
         "Le programme s'exécutera sur l'ordinateur."
     )
 
-    update_labels()
+    update_menu_labels()
 
 
 def select_esp32():
@@ -65,7 +75,7 @@ def select_esp32():
         "Vérifie que la carte est branchée."
     )
 
-    update_labels()
+    update_menu_labels()
 
 
 # -------------------------------------------------
@@ -73,22 +83,22 @@ def select_esp32():
 # -------------------------------------------------
 
 def load_plugin():
+    global MENU_PYTHON, MENU_ESP32
+
     wb = get_workbench()
+    tools_menu = wb.get_menu("tools")
 
-    wb.add_command(
-        command_id="mode_python",
-        menu_name="tools",
-        command_label="Mode Python",
-        handler=select_python,
-        group=110
+    # Ajouter les commandes normalement
+    tools_menu.add_command(
+        label="Mode Python (ordinateur)",
+        command=select_python
     )
+    MENU_PYTHON = tools_menu.index("end")
 
-    wb.add_command(
-        command_id="mode_esp32",
-        menu_name="tools",
-        command_label="Mode ESP32",
-        handler=select_esp32,
-        group=110
+    tools_menu.add_command(
+        label="Mode ESP32 (carte)",
+        command=select_esp32
     )
+    MENU_ESP32 = tools_menu.index("end")
 
-    update_labels()
+    update_menu_labels()
