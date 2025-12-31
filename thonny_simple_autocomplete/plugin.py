@@ -50,7 +50,7 @@ def on_key_release_trigger(event):
         "if":      ("if :", 1),
         "elif":    ("elif :", 1),
         "else":    ("else :", 0),
-        "def":     ("def :", 1),
+        "def":     ("def ():", 3),
         "true":    ("True", 0),
         "false":   ("False", 0),
         "print":   ("print()", 1),
