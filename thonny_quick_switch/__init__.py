@@ -1,54 +1,58 @@
 from thonny import get_workbench
 
-# --- Détection du mode actif ---
+# --- Helpers ---
 
-def is_python3_active():
-    return get_workbench().get_option("run.backend_name") == "LocalCPython"
+def get_backend():
+    return get_workbench().get_option("run.backend_name")
 
-def is_esp32_active():
-    return get_workbench().get_option("run.backend_name") == "ESP32"
+def refresh_menu():
+    wb = get_workbench()
+
+    python_label = "◉ Mode Python 3" if get_backend() == "LocalCPython" else "◯ Mode Python 3"
+    esp_label = "◉ Mode ESP32" if get_backend() == "ESP32" else "◯ Mode ESP32"
+
+    wb.remove_command("tools", "mode_python3")
+    wb.remove_command("tools", "mode_esp32")
+
+    wb.add_command(
+        command_id="mode_python3",
+        menu_name="tools",
+        command_label=python_label,
+        handler=select_python3,
+        group=110
+    )
+
+    wb.add_command(
+        command_id="mode_esp32",
+        menu_name="tools",
+        command_label=esp_label,
+        handler=select_esp32,
+        group=110
+    )
 
 
 # --- Actions ---
 
 def select_python3():
     wb = get_workbench()
-    if not is_python3_active():
-        wb.set_option("run.backend_name", "LocalCPython")
-        try:
-            wb.restart_backend(clean=True)
-        except:
-            pass
+    wb.set_option("run.backend_name", "LocalCPython")
+    try:
+        wb.restart_backend(clean=True)
+    except:
+        pass
+    refresh_menu()
 
 def select_esp32():
     wb = get_workbench()
-    if not is_esp32_active():
-        wb.set_option("run.backend_name", "ESP32")
-        try:
-            wb.restart_backend(clean=True)
-        except:
-            pass
+    wb.set_option("run.backend_name", "ESP32")
+    try:
+        wb.restart_backend(clean=True)
+    except:
+        pass
+    refresh_menu()
 
 
-# --- Menu radio (✓ = actif) ---
+# --- Plugin init ---
 
 def load_plugin():
-    wb = get_workbench()
-
-    wb.add_command(
-        command_id="radio_python3",
-        menu_name="tools",
-        command_label="● Mode Python 3",
-        handler=select_python3,
-        tester=is_python3_active,
-        group=110
-    )
-
-    wb.add_command(
-        command_id="radio_esp32",
-        menu_name="tools",
-        command_label="● Mode ESP32",
-        handler=select_esp32,
-        tester=is_esp32_active,
-        group=110
-    )
+    refresh_menu()
