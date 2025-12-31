@@ -1,4 +1,5 @@
 from thonny import get_workbench
+import tkinter as tk
 
 def update_ui():
     """Force la mise à jour immédiate du texte du bouton dans la barre d'outils"""
@@ -11,20 +12,23 @@ def update_ui():
     else:
         btn_text = "PYTHON 3"
         
-    # 1. Mise à jour de la logique interne (pour les menus)
+    # 1. Mise à jour de la définition de la commande (pour que ça reste si Thonny redessine)
     if "toggle_py3_esp32" in wb._commands:
         cmd = wb._commands["toggle_py3_esp32"]
         cmd.caption = btn_text
         cmd.command_label = btn_text
 
-    # 2. Mise à jour visuelle du bouton dans la barre d'outils
-    # On récupère la barre d'outils de Thonny
+    # 2. Mise à jour visuelle force brute sur le widget Tkinter
     toolbar = wb.get_toolbar()
+    # On cherche le widget correspondant à notre commande
     for child in toolbar.winfo_children():
-        # Thonny stocke l'ID de la commande dans l'attribut 'command_id' du widget
         if getattr(child, "command_id", None) == "toggle_py3_esp32":
-            # On change le texte du bouton Tkinter directement
-            child.config(text=btn_text)
+            try:
+                # On configure le texte ET on force l'affichage
+                child.configure(text=btn_text)
+                child.update_idletasks() 
+            except Exception:
+                pass
             break
 
 def switch_interpreter():
@@ -32,31 +36,33 @@ def switch_interpreter():
     wb = get_workbench()
     current_backend = wb.get_option("run.backend_name")
     
-    # Changement de l'option Thonny
+    # Changement de l'option
     if current_backend == "LocalCPython":
         wb.set_option("run.backend_name", "ESP32")
     else:
         wb.set_option("run.backend_name", "LocalCPython")
 
-    # On force le redémarrage du moteur Python
+    # On force le redémarrage du moteur
     try:
         wb.restart_backend(clean=True)
     except:
         pass
         
-    # Mise à jour immédiate de l'affichage
-    update_ui()
-    wb.update_title()
+    # SOLUTION : On utilise 'after' pour laisser Thonny finir ses mises à jour internes
+    # avant d'appliquer notre changement de texte. 
+    # 50ms suffisent généralement.
+    wb.after(50, update_ui)
+    
+    # On met aussi à jour le titre après un court délai
+    wb.after(50, wb.update_title)
 
 def load_plugin():
-    """Initialise le plugin au chargement de Thonny"""
+    """Initialise le plugin"""
     wb = get_workbench()
     
-    # Détecter l'état actuel au lancement
     current = wb.get_option("run.backend_name")
     initial_text = "ESP32" if current == "ESP32" else "PYTHON 3"
 
-    # Création de la commande initiale
     wb.add_command(
         command_id="toggle_py3_esp32",
         menu_name="tools",
@@ -65,3 +71,6 @@ def load_plugin():
         caption=initial_text,
         include_in_toolbar=True
     )
+    
+    # Sécurité : On s'assure que le bouton a le bon texte au démarrage complet
+    wb.after_idle(update_ui)
