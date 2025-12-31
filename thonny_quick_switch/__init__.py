@@ -1,60 +1,52 @@
 from thonny import get_workbench
 import tkinter as tk
 
-def update_ui():
-    """Force la mise à jour immédiate du texte du bouton dans la barre d'outils"""
+def update_ui(event=None):
+    """Met à jour le texte du bouton. Accepte un argument 'event' pour le binding."""
     wb = get_workbench()
     current_backend = wb.get_option("run.backend_name")
     
-    # Définition du texte selon le mode actif
+    # Choix du texte
     if current_backend == "ESP32":
         btn_text = "ESP32"
     else:
         btn_text = "PYTHON 3"
         
-    # 1. Mise à jour de la définition de la commande (pour que ça reste si Thonny redessine)
+    # 1. Mise à jour de l'objet commande interne (pour la persistance)
     if "toggle_py3_esp32" in wb._commands:
         cmd = wb._commands["toggle_py3_esp32"]
         cmd.caption = btn_text
         cmd.command_label = btn_text
 
-    # 2. Mise à jour visuelle force brute sur le widget Tkinter
+    # 2. Mise à jour visuelle du bouton Tkinter
     toolbar = wb.get_toolbar()
-    # On cherche le widget correspondant à notre commande
     for child in toolbar.winfo_children():
         if getattr(child, "command_id", None) == "toggle_py3_esp32":
             try:
-                # On configure le texte ET on force l'affichage
                 child.configure(text=btn_text)
-                child.update_idletasks() 
             except Exception:
                 pass
             break
 
 def switch_interpreter():
-    """Bascule l'interpréteur et rafraîchit l'UI"""
+    """Bascule l'option et lance le redémarrage"""
     wb = get_workbench()
     current_backend = wb.get_option("run.backend_name")
     
-    # Changement de l'option
+    # Bascule
     if current_backend == "LocalCPython":
         wb.set_option("run.backend_name", "ESP32")
     else:
         wb.set_option("run.backend_name", "LocalCPython")
 
-    # On force le redémarrage du moteur
+    # Redémarrage (C'est ce qui déclenchera 'BackendRestarted' plus tard)
     try:
         wb.restart_backend(clean=True)
     except:
         pass
-        
-    # SOLUTION : On utilise 'after' pour laisser Thonny finir ses mises à jour internes
-    # avant d'appliquer notre changement de texte. 
-    # 50ms suffisent généralement.
-    wb.after(50, update_ui)
     
-    # On met aussi à jour le titre après un court délai
-    wb.after(50, wb.update_title)
+    # On met à jour le titre tout de suite pour donner un feedback immédiat
+    wb.update_title()
 
 def load_plugin():
     """Initialise le plugin"""
@@ -72,5 +64,10 @@ def load_plugin():
         include_in_toolbar=True
     )
     
-    # Sécurité : On s'assure que le bouton a le bon texte au démarrage complet
+    # C'est LA clé du succès :
+    # On demande à Thonny d'appeler update_ui à chaque fois que le backend a fini de redémarrer.
+    # Le 'True' à la fin signifie qu'on veut recevoir l'événement même si on n'est pas au premier plan.
+    wb.bind("BackendRestarted", update_ui, True)
+    
+    # Mise à jour initiale au lancement
     wb.after_idle(update_ui)
