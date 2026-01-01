@@ -1,47 +1,62 @@
 from thonny import get_workbench
 import tkinter as tk
 
-def select_interpreter(backend_name):
-    """Change l'interpréteur et force le redémarrage"""
+def set_interpreter(backend_id):
+    """Change l'interpréteur et redémarre le backend"""
     wb = get_workbench()
-    wb.set_option("run.backend_name", backend_name)
+    wb.set_option("run.backend_name", backend_id)
     try:
-        # Le redémarrage applique le changement d'interpréteur
         wb.restart_backend(clean=True)
-    except Exception:
+    except:
         pass
 
 def load_plugin():
     wb = get_workbench()
     
-    # 1. On crée/récupère le menu "Interpréteur" via l'API Thonny.
-    # C'est la méthode la plus stable pour éviter les erreurs 'AttributeError'.
-    interpreter_menu = wb.get_menu("interpreter_switch", "Interpréteur")
-    
-    def refresh_menu():
-        """Reconstruit le menu avec le symbole ✓ au moment où l'on clique dessus"""
-        # On vide le menu existant
-        interpreter_menu.delete(0, "end")
-        
-        # On récupère l'interpréteur actuellement configuré
-        current = wb.get_option("run.backend_name")
-        
-        # Option Python 3
-        # On utilise add_command de Tkinter pour qu'il reste TOUJOURS cliquable
-        py_label = "✓ Python 3" if current == "LocalCPython" else "    Python 3"
-        interpreter_menu.add_command(
-            label=py_label, 
-            command=lambda: select_interpreter("LocalCPython")
-        )
-        
-        # Option ESP32
-        esp_label = "✓ ESP32" if current == "ESP32" else "    ESP32"
-        interpreter_menu.add_command(
-            label=esp_label, 
-            command=lambda: select_interpreter("ESP32")
-        )
+    def create_custom_menu():
+        try:
+            # On récupère la barre de menu principale de la fenêtre (root)
+            # cget("menu") renvoie le nom du widget menu (ex: ".!menu")
+            menu_path = wb.cget("menu")
+            if not menu_path:
+                # Si le menu n'est pas encore prêt, on réessaie dans 200ms
+                wb.after(200, create_custom_menu)
+                return
+                
+            main_menubar = wb.nametowidget(menu_path)
+            
+            # Création du menu "Mode" (ou "Interpréteur")
+            # Ce menu est un objet Tkinter pur, donc il ne sera pas grisé par Thonny
+            mode_menu = tk.Menu(main_menubar, tearoff=0)
+            
+            def refresh_labels():
+                """Met à jour les coches ✓ juste avant l'affichage du menu"""
+                mode_menu.delete(0, "end")
+                current = wb.get_option("run.backend_name")
+                
+                # Option Python 3
+                py_prefix = "✓ " if current == "LocalCPython" else "    "
+                mode_menu.add_command(
+                    label=f"{py_prefix}Python 3", 
+                    command=lambda: set_interpreter("LocalCPython")
+                )
+                
+                # Option ESP32
+                esp_prefix = "✓ " if current == "ESP32" else "    "
+                mode_menu.add_command(
+                    label=f"{esp_prefix}ESP32", 
+                    command=lambda: set_interpreter("ESP32")
+                )
 
-    # 2. On utilise 'postcommand' de Tkinter : cette fonction s'exécute
-    # à chaque fois que l'utilisateur clique sur le mot "Interpréteur".
-    # Cela garantit que la coche ✓ est toujours à la bonne place.
-    interpreter_menu.configure(postcommand=refresh_menu)
+            # postcommand : Tkinter exécute refresh_labels au moment du clic sur le menu
+            mode_menu.configure(postcommand=refresh_labels)
+            
+            # Ajout du menu à la barre principale
+            main_menubar.add_cascade(label="Interpréteur", menu=mode_menu)
+            
+        except Exception:
+            # Sécurité pour éviter de faire crasher Thonny au démarrage
+            pass
+
+    # On lance la création avec un léger délai (500ms) pour garantir que l'UI est stable
+    wb.after(500, create_custom_menu)
