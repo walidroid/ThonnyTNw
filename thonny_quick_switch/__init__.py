@@ -61,7 +61,7 @@ def load_plugin():
                 )
 
             mode_menu.configure(postcommand=refresh_labels)
-            main_menubar.add_cascade(label="Interprète", menu=mode_menu)
+            main_menubar.add_cascade(label="Interpréteur", menu=mode_menu)
             
             # Appliquer la couleur au démarrage
             apply_theme_to_editors()
