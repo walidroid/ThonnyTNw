@@ -6,10 +6,10 @@ ThonnySc est une distribution Python hors-ligne basée sur l'IDE Thonny, optimis
 https://github.com/user-attachments/assets/c5dc6d89-6245-43b6-8af4-2447affd6a67
 ## 🚀 Modifications de la Version Légère
 
-❌❌❌Pour réduire la taille de l'installateur et simplifier l'environnement, les fonctionnalités suivantes ont été retirées :❌❌❌
+❌❌❌# **Pour réduire la taille de l'installateur et simplifier l'environnement, les fonctionnalités suivantes ont été retirées** :❌❌❌
 
 * **Analyse de Données** : Suppression de `Pandas` et `Matplotlib`. ❌
-* **Gestion Excel** : Retrait des bibliothèques `xlrd`, `xlsxwriter`, `xlwt`, et `openpyxl`.❌
+* **Gestion Excel** : Retrait des bibliothèques `xlrd`, `xlsxwriter`, `xlwt`, et `openpyxl`.❌ 
 * **Notebooks Interactifs** : Suppression de `JupyterLab` et des raccourcis associés.❌
 * **Support Microcontrôleurs** : Retrait des outils `esptool`, `pyserial`, et des pilotes ESP32.❌
 * **Thèmes Personnalisés** : Suppression des thèmes `OneDark`, `202`, et `Dracula`.❌
@@ -23,8 +23,8 @@ Cette version conserve l'essentiel pour les sections scientifiques et techniques
 * **Numpy** : Pour les calculs numériques de base.
 * **Thonny-Friendly** : Pour des explications détaillées des erreurs Python.
 * **Thonny-TunisiaSchools** : Plugin spécifique pour les dossiers par défaut et l'aide PyQt5.
-* **thonny-edulint
-* **Autocomplete 
+* **thonny-edulint**
+* **Autocomplete**
 
 ## 🛠️ Installation
 
