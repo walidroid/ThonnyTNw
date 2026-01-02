@@ -25,6 +25,12 @@ Cette version conserve l'essentiel pour les sections scientifiques et techniques
 * **Thonny-TunisiaSchools** : Plugin spécifique pour les dossiers par défaut et l'aide PyQt5.
 * **thonny-edulint
 
+
+
+
+https://github.com/user-attachments/assets/c5dc6d89-6245-43b6-8af4-2447affd6a67
+
+
 ## 🛠️ Installation
 
 1.  Téléchargez l'exécutable depuis la page [Releases]
