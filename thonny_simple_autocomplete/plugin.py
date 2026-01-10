@@ -5,7 +5,7 @@ def init_plugin():
     wb = get_workbench()
     wb.bind("WorkbenchReady", on_ready)
     wb.bind("EditorTextCreated", on_editor_created)
-    print("✅ Plugin Snippets (Mode Instantané) chargé")
+    print("✅ Plugin Snippets & Autoclose Intelligent chargé")
 
 def on_ready(event):
     wb = get_workbench()
@@ -29,21 +29,16 @@ def on_key_release_trigger(event):
     """Vérifie et remplace le mot-clé immédiatement après la frappe"""
     text = event.widget
     
-    # Optimisation : On ne vérifie que si la touche relâchée est une lettre, un chiffre ou un symbole visible
-    # Cela évite de lancer le script sur "Shift", "Ctrl", etc.
     if not event.char or (not event.char.isalnum() and event.char not in [" ", "_"]):
         return
 
-    # Sécurité position
     if text.index("insert") == "1.0":
         return
 
-    # 1. On récupère la ligne actuelle jusqu'au curseur
     cursor_pos = text.index("insert")
     line_start = text.index("insert linestart")
     line_text = text.get(line_start, cursor_pos)
     
-    # Dictionnaire des raccourcis
     snippets = {
         "for":     ("for i in range():", 2),
         "while":   ("while :", 1),
@@ -61,44 +56,52 @@ def on_key_release_trigger(event):
         "set":     ("setText()", 1)
     }
     
-    # 2. Analyse (On trie pour vérifier les mots les plus longs en premier)
     sorted_keys = sorted(snippets.keys(), key=len, reverse=True)
     
     match = None
     for key in sorted_keys:
         if line_text.endswith(key):
-            # Vérification frontière (mot entier)
-            # On vérifie que le caractère juste avant le mot n'est pas une lettre
             start_index = len(line_text) - len(key)
             if start_index > 0:
                 char_before = line_text[start_index - 1]
                 if char_before.isalnum() or char_before == "_":
-                    continue # C'est la fin d'un autre mot (ex: "whatif" pour "if"), on ignore
+                    continue 
             
             match = key
             break
             
     if match:
         content, back_step = snippets[match]
-        
-        # 3. Supprimer le mot-clé qui vient d'être tapé
         start_delete = f"insert-{len(match)}c"
         text.delete(start_delete, "insert")
-        
-        # 4. Insérer le snippet complet
         text.insert("insert", content)
-        
-        # 5. Placer le curseur
         if back_step > 0:
             text.mark_set("insert", f"insert-{back_step}c")
 
 def on_key_press(event):
-    """Gère la fermeture automatique des parenthèses"""
+    """
+    Gère la fermeture automatique des parenthèses, crochets et guillemets.
+    INTELLIGENT : N'agit que si le curseur est devant un espace ou une fin de ligne.
+    """
     char = event.char
     text_widget = event.widget
     pairs = {"(": ")", "[": "]", "'": "'", '"': '"'}
     
     if char in pairs:
+        # 1. On regarde ce qu'il y a juste après le curseur
+        next_char = text_widget.get("insert", "insert+1c")
+        
+        # 2. Liste des caractères "sûrs" qui autorisent l'autocomplétion
+        # On autorise l'autoclose si on est à la fin d'une ligne, devant un espace, 
+        # ou devant une autre fermeture ), ], }
+        allowed_followers = ["", "\n", " ", "\t", ")", "]", "}", ",", ":", ";"]
+        
+        # 3. Si le caractère suivant n'est PAS dans la liste (ex: c'est une lettre), 
+        # on désactive l'autoclose pour ne pas gêner l'édition.
+        if next_char not in allowed_followers:
+            return None # Laisse Thonny insérer le caractère normalement (une seule fois)
+            
+        # Sinon, on insère la paire complète et on recule le curseur
         text_widget.insert("insert", char + pairs[char])
         text_widget.mark_set("insert", "insert-1c")
         return "break"
