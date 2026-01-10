@@ -4,7 +4,7 @@ esptool == 5.1.0
 
 #Ajouts Selmen 
 
-#designer as a python package (shortcut : pyqt5_qt5_designer ) ; loads pyqt5 as well
+#designer as a python package (shortcut : pyqt5_qt5_designer ) 
 pyqt5_qt5_designer == 0.0.14
 
 #thonny_palestine_flag (not in pip )
@@ -33,6 +33,7 @@ thonny-friendly == 0.0.7
 #Sections scientifiques
 
 numpy == 2.2.4
+
 
 
 
