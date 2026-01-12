@@ -9,9 +9,12 @@ def init_plugin():
 
 def on_ready(event):
     wb = get_workbench()
-    editor = wb.get_editor_notebook().get_current_editor()
-    if editor:
-        bind_events(editor.get_text_widget())
+    # Récupérer l'éditeur actif s'il y en a un au démarrage
+    editor_notebook = wb.get_editor_notebook()
+    if editor_notebook:
+        editor = editor_notebook.get_current_editor()
+        if editor:
+            bind_events(editor.get_text_widget())
 
 def on_editor_created(event):
     bind_events(event.text_widget)
@@ -22,6 +25,35 @@ def bind_events(text_widget):
     
     # 2. Expansion IMMÉDIATE des mots-clés (Snippets)
     text_widget.bind("<KeyRelease>", on_key_release_trigger, add="+")
+    
+    # 3. Suppression intelligente des paires vides (Ajouté)
+    # On utilise <BackSpace> sans "KeyPress" pour mieux intercepter l'événement
+    text_widget.bind("<BackSpace>", on_backspace, add="+")
+
+def on_backspace(event):
+    """
+    Supprime automatiquement la paire complète (ex: "|") si on efface l'ouvrant.
+    """
+    text_widget = event.widget
+    
+    try:
+        # On récupère les caractères autour du curseur
+        prev_char = text_widget.get("insert-1c", "insert")
+        next_char = text_widget.get("insert", "insert+1c")
+    except:
+        return
+
+    # Liste des paires à gérer
+    pairs = {"(": ")", "[": "]", "'": "'", '"': '"', "{": "}"}
+    
+    # Si on est exactement entre une paire vide (ex: entre " et ")
+    if prev_char in pairs and next_char == pairs[prev_char]:
+        # On supprime TOUT (l'ouvrant et le fermant) d'un coup
+        text_widget.delete("insert-1c", "insert+1c")
+        
+        # IMPORTANT : On bloque l'événement standard ("break") pour éviter que
+        # Thonny n'essaie d'effacer encore une fois ou ne déplace le curseur bizarrement.
+        return "break"
 
 def on_key_release_trigger(event):
     """Vérifie et remplace le mot-clé immédiatement après la frappe"""
@@ -73,6 +105,7 @@ def on_key_release_trigger(event):
             
     if match:
         content, back_step = snippets[match]
+        # On calcule la position de début du mot clé à remplacer
         start_delete = f"insert-{len(match)}c"
         text.delete(start_delete, "insert")
         text.insert("insert", content)
@@ -130,28 +163,3 @@ def on_key_press(event):
         text_widget.insert("insert", char + pairs[char])
         text_widget.mark_set("insert", "insert-1c")
         return "break"
-def on_backspace(event):
-    """
-    Supprime automatiquement le caractère fermant si on efface l'ouvrant
-    et que le couple est vide (ex: "|" devient | après Backspace).
-    """
-    text_widget = event.widget
-    
-    try:
-        # On récupère le caractère juste AVANT le curseur (celui qu'on va effacer)
-        char_before = text_widget.get("insert-1c")
-        # On récupère le caractère juste APRÈS le curseur
-        char_after = text_widget.get("insert")
-    except:
-        return
-
-    # Les mêmes paires que celles définies dans on_key_press
-    pairs = {"(": ")", "[": "]", "'": "'", '"': '"'}
-    
-    # Si le caractère avant est une ouverture (ex: ")
-    # ET que le caractère après est sa fermeture (ex: ")
-    if char_before in pairs and char_after == pairs[char_before]:
-        # On supprime manuellement le caractère de droite (le fermant)
-        text_widget.delete("insert")
-        # On laisse l'événement BackSpace continuer normalement pour 
-        # supprimer le caractère de gauche (l'ouvrant).
