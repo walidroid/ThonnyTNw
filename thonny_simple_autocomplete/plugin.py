@@ -130,3 +130,28 @@ def on_key_press(event):
         text_widget.insert("insert", char + pairs[char])
         text_widget.mark_set("insert", "insert-1c")
         return "break"
+def on_backspace(event):
+    """
+    Supprime automatiquement le caractère fermant si on efface l'ouvrant
+    et que le couple est vide (ex: "|" devient | après Backspace).
+    """
+    text_widget = event.widget
+    
+    try:
+        # On récupère le caractère juste AVANT le curseur (celui qu'on va effacer)
+        char_before = text_widget.get("insert-1c")
+        # On récupère le caractère juste APRÈS le curseur
+        char_after = text_widget.get("insert")
+    except:
+        return
+
+    # Les mêmes paires que celles définies dans on_key_press
+    pairs = {"(": ")", "[": "]", "'": "'", '"': '"'}
+    
+    # Si le caractère avant est une ouverture (ex: ")
+    # ET que le caractère après est sa fermeture (ex: ")
+    if char_before in pairs and char_after == pairs[char_before]:
+        # On supprime manuellement le caractère de droite (le fermant)
+        text_widget.delete("insert")
+        # On laisse l'événement BackSpace continuer normalement pour 
+        # supprimer le caractère de gauche (l'ouvrant).
