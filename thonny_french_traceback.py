@@ -37,3 +37,11 @@ def load_plugin():
     wb = get_workbench()
     # On attend un peu plus longtemps (ToplevelResponse) ou on force au restart
     wb.bind("BackendRestarted", activate_french_errors, True)
+    # 1. Supprimer "Proposer automatiquement des compléments pendant la saisie" (Option native de Thonny)
+    wb.set_option("edit.propose_completions_while_typing", False)
+
+    # 2. Supprimer l'ouverture automatique de l'Assistant (les deux options)
+    # "Ouvrir l'assistant automatiquement quand le programme échoue avec une exception"
+    wb.set_option("assistance.open_on_error", False)
+    # "Ouvrir l'assistant automatiquement quand il a quelque chose à dire" (Warnings)
+    wb.set_option("assistance.open_on_warnings", False)
