@@ -9,7 +9,6 @@ def init_plugin():
 
 def on_ready(event):
     wb = get_workbench()
-    # Récupérer l'éditeur actif s'il y en a un au démarrage
     editor_notebook = wb.get_editor_notebook()
     if editor_notebook:
         editor = editor_notebook.get_current_editor()
@@ -20,40 +19,56 @@ def on_editor_created(event):
     bind_events(event.text_widget)
 
 def bind_events(text_widget):
-    # 1. Fermeture auto des paires ( (, [, ', " )
+    # --- 1. GESTION PRIORITAIRE (POUR BACKSPACE) ---
+    # Thonny intercepte souvent BackSpace. Pour passer DEVANT lui, 
+    # on ajoute un tag personnalisé en tout premier dans la liste des priorités.
+    priority_tag = "SimpleAutocompletePriority"
+    tags = list(text_widget.bindtags())
+    
+    if priority_tag not in tags:
+        # Insertion en position 0 (Priorité absolue)
+        tags.insert(0, priority_tag)
+        text_widget.bindtags(tuple(tags))
+        
+        # On lie BackSpace à ce tag spécial
+        # bind_class s'applique à ce tag partout où il est utilisé
+        text_widget.bind_class(priority_tag, "<BackSpace>", on_backspace)
+
+    # --- 2. GESTION NORMALE (INSERTION) ---
+    # Pour l'ajout de caractères, l'ordre standard fonctionne bien
     text_widget.bind("<KeyPress>", on_key_press, add="+")
-    
-    # 2. Expansion IMMÉDIATE des mots-clés (Snippets)
     text_widget.bind("<KeyRelease>", on_key_release_trigger, add="+")
-    
-    # 3. Suppression intelligente des paires vides (Ajouté)
-    # On utilise <BackSpace> sans "KeyPress" pour mieux intercepter l'événement
-    text_widget.bind("<BackSpace>", on_backspace, add="+")
 
 def on_backspace(event):
     """
-    Supprime automatiquement la paire complète (ex: "|") si on efface l'ouvrant.
+    Supprime la paire complète (ex: "" ou []) si on efface l'ouvrant.
+    S'exécute AVANT le Backspace standard de Thonny.
     """
     text_widget = event.widget
     
     try:
-        # On récupère les caractères autour du curseur
+        # On regarde ce qui entoure le curseur
+        # insert-1c = le caractère qu'on va effacer (gauche)
+        # insert = le caractère juste après (droite)
         prev_char = text_widget.get("insert-1c", "insert")
         next_char = text_widget.get("insert", "insert+1c")
     except:
-        return
+        return None
 
     # Liste des paires à gérer
     pairs = {"(": ")", "[": "]", "'": "'", '"': '"', "{": "}"}
     
-    # Si on est exactement entre une paire vide (ex: entre " et ")
+    # Si on est pile au milieu d'une paire vide (ex: "|")
     if prev_char in pairs and next_char == pairs[prev_char]:
-        # On supprime TOUT (l'ouvrant et le fermant) d'un coup
+        # On supprime MANUELLEMENT les deux caractères
         text_widget.delete("insert-1c", "insert+1c")
         
-        # IMPORTANT : On bloque l'événement standard ("break") pour éviter que
-        # Thonny n'essaie d'effacer encore une fois ou ne déplace le curseur bizarrement.
+        # IMPORTANT : "break" empêche Thonny d'exécuter son propre Backspace ensuite
+        # (ce qui éviterait une double suppression ou des erreurs)
         return "break"
+        
+    # Si la condition n'est pas remplie, on laisse Thonny faire son travail normal
+    return None
 
 def on_key_release_trigger(event):
     """Vérifie et remplace le mot-clé immédiatement après la frappe"""
@@ -105,7 +120,6 @@ def on_key_release_trigger(event):
             
     if match:
         content, back_step = snippets[match]
-        # On calcule la position de début du mot clé à remplacer
         start_delete = f"insert-{len(match)}c"
         text.delete(start_delete, "insert")
         text.insert("insert", content)
@@ -115,14 +129,13 @@ def on_key_release_trigger(event):
 def on_key_press(event):
     """
     Gère la fermeture automatique intelligente.
-    Ne double pas les guillemets si on est en train de fermer un mot.
     """
     char = event.char
     text_widget = event.widget
     pairs = {"(": ")", "[": "]", "'": "'", '"': '"'}
     
     if char in pairs:
-        # --- 1. Vérification du SUIVANT (pour insertion au début d'un mot) ---
+        # --- 1. Vérification du SUIVANT ---
         try:
             next_char = text_widget.get("insert", "insert+1c")
         except:
@@ -130,36 +143,29 @@ def on_key_press(event):
             
         allowed_followers = ["", "\n", " ", "\t", ")", "]", "}", ",", ":", ";"]
         
-        # Si le curseur est collé devant un mot (ex: |text), on n'autocomplète pas
         if next_char not in allowed_followers:
              return None 
         
-        # --- 2. Vérification du PRÉCÉDENT (Spécial Guillemets) ---
-        # Si on tape " ou ' juste après une lettre, on suppose qu'on veut FERMER la string
+        # --- 2. Vérification du PRÉCÉDENT ---
         if char in ['"', "'"]:
             try:
                 prev_char = text_widget.get("insert-1c", "insert")
             except:
                 prev_char = ""
             
-            # Si le caractère précédent est une lettre ou un chiffre
             if prev_char.isalnum() or prev_char == "_":
-                # Exception : Les préfixes f", r", b", u" doivent fonctionner
                 is_prefix = False
                 if prev_char.lower() in ['f', 'r', 'b', 'u']:
                     try:
-                        # On vérifie qu'avant le 'f', ce n'est pas une autre lettre (ex: 'if"')
                         prev_prev = text_widget.get("insert-2c", "insert-1c")
                         if not prev_prev.isalnum() and prev_prev != "_":
                             is_prefix = True
                     except:
-                        is_prefix = True # Début de fichier
+                        is_prefix = True
                 
-                # Si ce n'est pas un préfixe (f,r..), c'est une fermeture de mot -> BLOQUER
                 if not is_prefix:
                     return None
 
-        # Si toutes les conditions sont remplies, on insère la paire
         text_widget.insert("insert", char + pairs[char])
         text_widget.mark_set("insert", "insert-1c")
         return "break"
