@@ -17,7 +17,6 @@ def run_conversion(filename, is_gui, progress_win, progress_bar):
     cmd.append(script_name)
 
     try:
-        # Lancement du processus et capture de la sortie pour le log
         process = subprocess.Popen(
             cmd, 
             cwd=work_dir, 
@@ -27,10 +26,7 @@ def run_conversion(filename, is_gui, progress_win, progress_bar):
             creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
         )
         
-        # On attend la fin
         stdout, _ = process.communicate()
-
-        # Fermeture de la barre de progression (via le thread principal)
         progress_win.after(0, progress_win.destroy)
 
         if process.returncode == 0:
@@ -38,7 +34,6 @@ def run_conversion(filename, is_gui, progress_win, progress_bar):
             messagebox.showinfo("Succès", f"Exportation terminée !\nFichier disponible dans :\n{dist_folder}")
             os.startfile(dist_folder)
         else:
-            # En cas d'erreur, on crée un fichier log pour comprendre pourquoi
             log_file = os.path.join(work_dir, "export_error_log.txt")
             with open(log_file, "w", encoding="utf-8") as f:
                 f.write(stdout)
@@ -61,7 +56,6 @@ def export_to_exe():
     filename = editor.get_filename()
     is_gui = messagebox.askyesno("Configuration", "Est-ce une application graphique (GUI) ?\n\n(Oui pour cacher la console noire)")
 
-    # Création de la fenêtre de progression
     progress_win = tk.Toplevel(wb)
     progress_win.title("Exportation EXE")
     progress_win.geometry("300x120")
@@ -74,18 +68,15 @@ def export_to_exe():
     progress_bar.pack(pady=10)
     progress_bar.start(10)
 
-    # Lancement de la conversion dans un thread pour ne pas bloquer l'UI
     threading.Thread(target=run_conversion, args=(filename, is_gui, progress_win, progress_bar), daemon=True).start()
 
 def load_plugin():
-    """Ajoute l'option dans le menu Fichier (File)"""
     wb = get_workbench()
-    
+    # CHANGEMENT : menu_name="file" au lieu de "tools"
     wb.add_command(
         command_id="export_to_exe",
-        menu_name="file",              # CHANGÉ ICI : 'tools' -> 'file'
-        command_label="Exporter en .EXE...",
+        menu_name="file",
+        command_label="Exporter en exécutable (.exe)...",
         handler=export_to_exe,
-        caption="Exporter en EXE",
-        group=1000                     
+        group=1000
     )
