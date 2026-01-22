@@ -78,12 +78,14 @@ def export_to_exe():
     threading.Thread(target=run_conversion, args=(filename, is_gui, progress_win, progress_bar), daemon=True).start()
 
 def load_plugin():
+    """Ajoute l'option dans le menu Fichier (File)"""
     wb = get_workbench()
-    # Ajout au menu 'Outils' (tools)
+    
     wb.add_command(
         command_id="export_to_exe",
-        menu_name="tools",
-        command_label="Exporter en exécutable (.exe)",
+        menu_name="file",              # CHANGÉ ICI : 'tools' -> 'file'
+        command_label="Exporter en .EXE...",
         handler=export_to_exe,
-        group=120
+        caption="Exporter en EXE",
+        group=1000                     
     )
