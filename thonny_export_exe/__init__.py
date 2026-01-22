@@ -2,77 +2,88 @@ from thonny import get_workbench
 import subprocess
 import os
 import sys
-from tkinter import messagebox
+import threading
+import tkinter as tk
+from tkinter import messagebox, ttk
+
+def run_conversion(filename, is_gui, progress_win, progress_bar):
+    """Exécute la compilation dans un thread séparé"""
+    work_dir = os.path.dirname(filename)
+    script_name = os.path.basename(filename)
+    
+    # Préparation de la commande
+    cmd = [sys.executable, "-m", "PyInstaller", "--noconfirm", "--onefile"]
+    cmd.append("--windowed" if is_gui else "--console")
+    cmd.append(script_name)
+
+    try:
+        # Lancement du processus et capture de la sortie pour le log
+        process = subprocess.Popen(
+            cmd, 
+            cwd=work_dir, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.STDOUT, 
+            text=True,
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+        )
+        
+        # On attend la fin
+        stdout, _ = process.communicate()
+
+        # Fermeture de la barre de progression (via le thread principal)
+        progress_win.after(0, progress_win.destroy)
+
+        if process.returncode == 0:
+            dist_folder = os.path.join(work_dir, "dist")
+            messagebox.showinfo("Succès", f"Exportation terminée !\nFichier disponible dans :\n{dist_folder}")
+            os.startfile(dist_folder)
+        else:
+            # En cas d'erreur, on crée un fichier log pour comprendre pourquoi
+            log_file = os.path.join(work_dir, "export_error_log.txt")
+            with open(log_file, "w", encoding="utf-8") as f:
+                f.write(stdout)
+            messagebox.showerror("Erreur Fatale", 
+                f"La conversion a échoué (Code {process.returncode}).\n\n"
+                f"Consultez le fichier log pour plus de détails :\n{log_file}")
+
+    except Exception as e:
+        progress_win.after(0, progress_win.destroy)
+        messagebox.showerror("Erreur", f"Erreur système : {str(e)}")
 
 def export_to_exe():
-    """Compile le script actuel en exécutable Windows (.exe)"""
     wb = get_workbench()
     editor = wb.get_editor_notebook().get_current_editor()
     
-    # 1. Vérifications de base
-    if not editor:
-        messagebox.showerror("Erreur", "Aucun fichier n'est ouvert.")
+    if not editor or not editor.get_filename():
+        messagebox.showerror("Erreur", "Veuillez ouvrir et enregistrer un fichier .py avant l'export.")
         return
     
     filename = editor.get_filename()
-    if not filename:
-        messagebox.showerror("Erreur", "Veuillez d'abord sauvegarder votre fichier.")
-        return
-    
-    if not filename.endswith(".py"):
-        messagebox.showerror("Erreur", "Le fichier doit être un script Python (.py).")
-        return
+    is_gui = messagebox.askyesno("Configuration", "Est-ce une application graphique (GUI) ?\n\n(Oui pour cacher la console noire)")
 
-    # 2. Configuration de la commande PyInstaller
-    # --onefile : Crée un seul fichier .exe
-    # --noconfirm : Écrase le dossier dist s'il existe
-    # --windowed : (Optionnel) Pour les GUI (pas de console noire). 
-    # Pour les débutants, on laisse souvent la console visible pour voir les erreurs/input.
+    # Création de la fenêtre de progression
+    progress_win = tk.Toplevel(wb)
+    progress_win.title("Exportation EXE")
+    progress_win.geometry("300x120")
+    progress_win.resizable(False, False)
+    progress_win.attributes("-topmost", True)
     
-    # On demande à l'utilisateur s'il veut cacher la console (Mode GUI) ou non
-    is_gui = messagebox.askyesno("Mode Export", "Voulez-vous cacher la console noire ?\n\nOui : Pour les interfaces graphiques (PyQt, Tkinter)\nNon : Pour les scripts console (print, input)")
+    tk.Label(progress_win, text="Conversion en cours...", pady=10).pack()
     
-    cmd = ["pyinstaller", "--noconfirm", "--onefile"]
-    if is_gui:
-        cmd.append("--windowed")
-    else:
-        cmd.append("--console")
-        
-    cmd.append(filename)
-    
-    # Dossier de sortie (là où est le script)
-    work_dir = os.path.dirname(filename)
-    
-    # 3. Exécution
-    try:
-        # On affiche un message d'attente (rudimentaire)
-        top = messagebox.showinfo("Export en cours", "La conversion est en cours...\nCela peut prendre une minute.\nThonny va geler temporairement.")
-        
-        # Lancement du processus
-        # On utilise sys.executable -m PyInstaller pour être sûr d'utiliser le bon environnement
-        subprocess.check_call([sys.executable, "-m"] + cmd, cwd=work_dir)
-        
-        # 4. Succès
-        dist_folder = os.path.join(work_dir, "dist")
-        messagebox.showinfo("Succès", f"L'exécutable a été créé dans le dossier :\n{dist_folder}")
-        
-        # Ouvrir le dossier automatiquement
-        os.startfile(dist_folder)
-        
-    except subprocess.CalledProcessError as e:
-        messagebox.showerror("Erreur Fatale", f"La conversion a échoué.\nCode erreur : {e.returncode}")
-    except Exception as e:
-        messagebox.showerror("Erreur", f"Une erreur inattendue est survenue :\n{str(e)}")
+    progress_bar = ttk.Progressbar(progress_win, mode='indeterminate', length=250)
+    progress_bar.pack(pady=10)
+    progress_bar.start(10)
+
+    # Lancement de la conversion dans un thread pour ne pas bloquer l'UI
+    threading.Thread(target=run_conversion, args=(filename, is_gui, progress_win, progress_bar), daemon=True).start()
 
 def load_plugin():
-    """Ajoute l'option dans le menu Fichier"""
     wb = get_workbench()
-    
+    # Ajout au menu 'Outils' (Tools) car le menu 'Fichier' peut être saturé
     wb.add_command(
         command_id="export_to_exe",
-        menu_name="file",              # Ajout dans le menu 'Fichier'
-        command_label="Exporter en .EXE...",
+        menu_name="tools",
+        command_label="Exporter en exécutable (.exe)",
         handler=export_to_exe,
-        caption="Exporter en EXE",
-        group=1000                     # Tout en bas du menu
+        group=120
     )
