@@ -33,6 +33,7 @@ thonny-friendly == 0.0.7
 #Sections scientifiques
 
 numpy == 2.2.4
+pyinstaller
 
 
 
