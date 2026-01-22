@@ -73,7 +73,8 @@ Source: "RefreshEnv.cmd"; DestDir: "{tmp}";
 Source: "depsx64\*.whl" ; DestDir: "{tmp}\deps\";
 Source: "depsx64\*.tar.gz" ; DestDir: "{tmp}\deps\";
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-
+; Copie du plugin d'exportation EXE
+Source: "thonny_export_exe\*"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny\plugins\thonny_export_exe"; Flags: ignoreversion recursesubdirs createallsubdirs
 [Tasks]
 Name: "ThonnyDesktopIcon"; Description: "Créer icone bureau pour Thonny"   ; Components: "editors"
 Name: "DesignerDesktopIcon"; Description: "Créer icone bureau pour Designer"   ; Components: "bac_sc"
@@ -112,6 +113,7 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
 
