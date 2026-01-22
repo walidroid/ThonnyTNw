@@ -79,7 +79,7 @@ def export_to_exe():
 
 def load_plugin():
     wb = get_workbench()
-    # Ajout au menu 'Outils' (Tools) car le menu 'Fichier' peut être saturé
+    # Ajout au menu 'Outils' (tools)
     wb.add_command(
         command_id="export_to_exe",
         menu_name="tools",
