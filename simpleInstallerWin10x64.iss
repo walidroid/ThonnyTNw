@@ -67,6 +67,7 @@ Source: "thonny_quick_switch\__init__.py"; DestDir: "{localappdata}\Programs\Pyt
 ; Correction : On déplace la destination à l'intérieur de thonny\plugins
 Source: "thonny_simple_autocomplete\*"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny\plugins\thonny_simple_autocomplete"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; 3. Fichiers d'installation de base
+Source: "thonny_export_exe\*"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny\plugins\thonny_export_exe"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "python-{#PythonVersion}-{#arch}.exe"; DestDir: "{tmp}"; Flags: ignoreversion ; Components: "python_installer"
 Source: "RefreshEnv.cmd"; DestDir: "{tmp}";
 Source: "depsx64\*.whl" ; DestDir: "{tmp}\deps\";
@@ -111,6 +112,7 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
 
