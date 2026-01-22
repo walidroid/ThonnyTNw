@@ -100,12 +100,12 @@ Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "FRIENDLY_LANGU
 Filename:"{tmp}\python-{#PythonVersion}-{#arch}.exe" ;Parameters:  "/passive PrependPath=1  Include_launcher=1"  ; StatusMsg:"Installation Python ... "; Description: "Description Installation Python ...  "; Components:    "python_installer"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Bibliothèques Bac Scientifiques ... && {tmp}\RefreshEnv.cmd &&  py.exe -m pip install pyqt5 numpy --upgrade --no-index --find-links {tmp}\deps --prefer-binary >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Bibliothèques Bac Scientifiques ... "; Components: "bac_sc"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Qt5 Designer ... && {tmp}\RefreshEnv.cmd &&  py.exe -m pip install pyqt5_qt5_designer --upgrade --no-index --find-links {tmp}\deps --prefer-binary >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Designer ... "; Components: "bac_sc"
-Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title القدس لنا وكل فلسطين  &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny_palestine_flag --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Palestine Flag pour Thonny  ... "; Components: "editors\ps_flag_thonny"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Thonny Autosave... &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny-autosave --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Thonny Autosave  ... "; Components: "editors\thonny_autosave"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Thonny PyQt5 helper(thonny-tunisiaschools) ... &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny-tunisiaschools --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Thonny PyQt5 helper(thonny-tunisiaschools)   ... "; Components: "editors\thonny_tunisiaschools"
 Filename:"cmd.exe" ;Parameters: "/q /c mode 80,5 && title Installation de Thonny Friendly ... &&{tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny-friendly --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ;StatusMsg:"Installation de Thonny Friendly   ... "; Components: "editors\friendly"
 Filename:"cmd.exe"; Parameters: "/q /c mode 80,5 && title Installation de Thonny Edulint ... &&{tmp}\RefreshEnv.cmd && py.exe -m pip install thonny-edulint --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log"; StatusMsg: "Installation de Thonny Edulint ..."; Components: "editors\edulint"
-
+; Installation de PyInstaller lors de l'exécution de l'installateur
+Filename: "cmd.exe"; Parameters: "/q /c mode 80,5 && title Installation de PyInstaller ... && {tmp}\RefreshEnv.cmd && py.exe -m pip install pyinstaller --upgrade --no-index --find-links {tmp}\deps --prefer-binary >> {tmp}\innosetup.log"; StatusMsg: "Installation de l'outil d'exportation EXE..."; Components: "editors"
 [Code]
 procedure InitializeWizard;
 
@@ -113,6 +113,7 @@ begin
   //Pour afficher correctement le license(ascii art)
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
 
