@@ -72,16 +72,25 @@ Name: "{autodesktop}\Qt Designer"; Filename: "{#PythonLocalInstallDir}\Scripts\p
 Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "FRIENDLY_LANGUAGE"; ValueData: "fr"; Flags: preservestringtype
 
 [Run]
-Filename:"{tmp}\python-{#PythonVersion}-{#arch}.exe" ;Parameters:  "/passive PrependPath=1  Include_launcher=1"  ; StatusMsg:"Installation Python ... "; Description: "Description Installation Python ...  "; Components:    "python_installer"
+; 1. Installation de Python (inchangé)
+Filename: "{tmp}\python-{#PythonVersion}-{#arch}.exe"; Parameters: "/passive PrependPath=1 Include_launcher=1"; StatusMsg: "Installation de Python {#PythonVersion}..."; Components: "python_installer"
 
-; FIX : Installation groupée incluant Thonny et PyInstaller depuis le requirements.txt
-Filename: "cmd.exe"; Parameters: "/q /c mode 80,5 && title Installation des composants ... && {tmp}\RefreshEnv.cmd && py.exe -m pip install -r {tmp}\requirements.txt --upgrade --no-index --find-links {tmp}\deps --prefer-binary >> {tmp}\innosetup.log"; StatusMsg: "Installation de Thonny, PyInstaller et des bibliothèques..."; Components: "editors"
+; 2. NOUVELLE MÉTHODE : Installation forcée via le chemin absolu
+; On utilise {localappdata}\Programs\Python\Python{#PythonStrictVersion}\python.exe pour être certain de l'environnement
+Filename: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\python.exe"; \
+    Parameters: "-m pip install pyinstaller thonny numpy pyqt5_qt5_designer --upgrade --no-index --find-links {tmp}\deps --prefer-binary"; \
+    StatusMsg: "Installation de PyInstaller et des bibliothèques (Mode Forcé)..."; \
+    Components: "editors"
 
-; Plugins spécifiques non gérés par pip standard
-Filename: "cmd.exe" ; Parameters: "/q /c mode 80,5 && title Installation des outils spécifiques ... && {tmp}\RefreshEnv.cmd &&  py.exe -m pip install thonny_palestine_flag thonny-autosave thonny-tunisiaschools --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log" ; StatusMsg: "Configuration finale des plugins..."; Components: "editors"
+; 3. Installation des plugins spécifiques restants
+Filename: "cmd.exe"; \
+    Parameters: "/q /c mode 80,5 && {tmp}\RefreshEnv.cmd && py.exe -m pip install thonny_palestine_flag thonny-autosave thonny-tunisiaschools --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log"; \
+    StatusMsg: "Configuration finale des plugins..."; \
+    Components: "editors"
 
 [Code]
 procedure InitializeWizard;
 begin
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
