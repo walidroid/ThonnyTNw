@@ -58,8 +58,8 @@ Source: "thonny_export_exe\*"; DestDir: "{localappdata}\Programs\Python\Python{#
 Source: "requirements.txt"; DestDir: "{tmp}"; Flags: ignoreversion
 Source: "RefreshEnv.cmd"; DestDir: "{tmp}";
 
-; --- ALL WHEELS (PyInstaller + Dependencies) ---
-; Since you moved all 5 files into depsx64, this single line copies them all
+; --- ONLY PyInstaller & Helpers (from depsx64) ---
+; Since your depsx64 folder ONLY contains the 5 pyinstaller files, this line copies ONLY them.
 Source: "depsx64\*.whl"; DestDir: "{tmp}\deps\"; Flags: ignoreversion recursesubdirs
 
 ; --- Python Installer ---
@@ -75,21 +75,30 @@ Name: "{autodesktop}\Qt Designer"; Filename: "{#PythonLocalInstallDir}\Scripts\p
 Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "FRIENDLY_LANGUAGE"; ValueData: "fr"; Flags: preservestringtype
 
 [Run]
-; 1. Installation de Python
+; 1. Install Python
 Filename: "{tmp}\python-{#PythonVersion}-{#arch}.exe"; \
     Parameters: "/passive PrependPath=1 Include_launcher=1"; \
     StatusMsg: "Installation de Python {#PythonVersion}..."; \
     Components: "python_installer"
 
-; 2. Installation de PyInstaller et bibliothèques
+; 2. Install PyInstaller ONLY (From depsx64)
+; This step is isolated. It will use your local wheels for PyInstaller, Altgraph, Pefile, etc.
 Filename: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\python.exe"; \
-    Parameters: "-m pip install pyinstaller thonny numpy pyqt5_qt5_designer --upgrade --no-index --find-links {tmp}\deps --prefer-binary"; \
-    StatusMsg: "Installation de PyInstaller et des bibliothèques (Mode Forcé)..."; \
+    Parameters: "-m pip install pyinstaller --no-index --find-links ""{tmp}\deps"" --prefer-binary"; \
+    StatusMsg: "Installation de PyInstaller (Offline)..."; \
     Components: "editors"
 
-; 3. Configuration des plugins
+; 3. Install Thonny & Numpy (Separately)
+; WARNING: If you haven't downloaded Numpy/Thonny wheels yet, this step requires an internet connection.
+; I removed "--no-index" here so it can download them from the internet if needed.
+Filename: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\python.exe"; \
+    Parameters: "-m pip install thonny numpy pyqt5_qt5_designer --prefer-binary"; \
+    StatusMsg: "Installation de Thonny et Numpy..."; \
+    Components: "editors"
+
+; 4. Configure Plugins
 Filename: "cmd.exe"; \
-    Parameters: "/q /c mode 80,5 && {tmp}\RefreshEnv.cmd && py.exe -m pip install thonny-autosave thonny-tunisiaschools --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log"; \
+    Parameters: "/q /c mode 80,5 && {tmp}\RefreshEnv.cmd && py.exe -m pip install thonny-autosave thonny-tunisiaschools --upgrade --prefer-binary >> {tmp}\innosetup.log"; \
     StatusMsg: "Configuration finale des plugins..."; \
     Components: "editors"
 
@@ -98,6 +107,7 @@ procedure InitializeWizard;
 begin
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
 
