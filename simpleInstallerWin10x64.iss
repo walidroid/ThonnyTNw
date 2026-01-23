@@ -48,21 +48,22 @@ Name: "ThonnyDesktopIcon"; Description: "Créer icone bureau pour Thonny"; Compo
 Name: "DesignerDesktopIcon"; Description: "Créer icone bureau pour Designer"; Components: "bac_sc"
 
 [Files]
+; --- Thonny Plugins ---
 Source: "thonny_french_traceback.py"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny\plugins"; Flags: ignoreversion
 Source: "thonny_quick_switch\__init__.py"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny\plugins"; DestName: "thonny_quick_switch.py"; Flags: ignoreversion
 Source: "thonny_simple_autocomplete\*"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny\plugins\thonny_simple_autocomplete"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "thonny_export_exe\*"; DestDir: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\Lib\site-packages\thonny\plugins\thonny_export_exe"; Flags: ignoreversion recursesubdirs createallsubdirs
 
-; FIX : Copier le fichier requirements.txt pour l'installation groupée
+; --- Installation Requirements ---
 Source: "requirements.txt"; DestDir: "{tmp}"; Flags: ignoreversion
-
-; Copy the specific PyInstaller wheel from the project root to the temp dependency folder
-Source: "pyinstaller-6.18.0-py3-none-win_amd64.whl"; DestDir: "{tmp}\deps\"; Flags: ignoreversion
-
-Source: "python-{#PythonVersion}-{#arch}.exe"; DestDir: "{tmp}"; Flags: ignoreversion ; Components: "python_installer"
 Source: "RefreshEnv.cmd"; DestDir: "{tmp}";
-Source: "depsx64\*.whl" ; DestDir: "{tmp}\deps\";
-Source: "depsx64\*.tar.gz" ; DestDir: "{tmp}\deps\";
+
+; --- ALL WHEELS (PyInstaller + Dependencies) ---
+; Since you moved all 5 files into depsx64, this single line copies them all
+Source: "depsx64\*.whl"; DestDir: "{tmp}\deps\"; Flags: ignoreversion recursesubdirs
+
+; --- Python Installer ---
+Source: "python-{#PythonVersion}-{#arch}.exe"; DestDir: "{tmp}"; Flags: ignoreversion ; Components: "python_installer"
 
 [Icons]
 Name: "{group}\Thonny"; Filename: "{#PythonLocalInstallDir}\Scripts\thonny.exe"; IconFilename: "{#PythonLocalInstallDir}\Lib\site-packages\thonny\res\thonny.ico" ; Components: "editors"
@@ -74,17 +75,19 @@ Name: "{autodesktop}\Qt Designer"; Filename: "{#PythonLocalInstallDir}\Scripts\p
 Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "FRIENDLY_LANGUAGE"; ValueData: "fr"; Flags: preservestringtype
 
 [Run]
-; 1. Installation de Python (inchangé)
-Filename: "{tmp}\python-{#PythonVersion}-{#arch}.exe"; Parameters: "/passive PrependPath=1 Include_launcher=1"; StatusMsg: "Installation de Python {#PythonVersion}..."; Components: "python_installer"
+; 1. Installation de Python
+Filename: "{tmp}\python-{#PythonVersion}-{#arch}.exe"; \
+    Parameters: "/passive PrependPath=1 Include_launcher=1"; \
+    StatusMsg: "Installation de Python {#PythonVersion}..."; \
+    Components: "python_installer"
 
-; 2. NOUVELLE MÉTHODE : Installation forcée via le chemin absolu
-; On utilise {localappdata}\Programs\Python\Python{#PythonStrictVersion}\python.exe pour être certain de l'environnement
+; 2. Installation de PyInstaller et bibliothèques
 Filename: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\python.exe"; \
     Parameters: "-m pip install pyinstaller thonny numpy pyqt5_qt5_designer --upgrade --no-index --find-links {tmp}\deps --prefer-binary"; \
     StatusMsg: "Installation de PyInstaller et des bibliothèques (Mode Forcé)..."; \
     Components: "editors"
 
-; 3. Installation des plugins spécifiques restants
+; 3. Configuration des plugins
 Filename: "cmd.exe"; \
     Parameters: "/q /c mode 80,5 && {tmp}\RefreshEnv.cmd && py.exe -m pip install thonny-autosave thonny-tunisiaschools --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log"; \
     StatusMsg: "Configuration finale des plugins..."; \
@@ -95,5 +98,6 @@ procedure InitializeWizard;
 begin
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
 
