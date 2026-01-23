@@ -37,7 +37,6 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Components]
 Name: "python_installer"; Description: "Python {#PythonVersion}: Ne décocher cette case que si vous vouler utiliser une autre version de python"; Types: full  custom;
 Name: "editors"; Description: "Editeurs Python(Thonny seulement pour le moment )"; Types: full compact custom;
-Name: "editors\ps_flag_thonny"; Description: "Drapeau Palestinian au lieu de Ukranian dans Thonny"; Types: full compact custom;
 Name: "editors\thonny_autosave"; Description: "Enregistrer automatiqement dans Thonny"; Types: full compact custom;
 Name: "editors\thonny_tunisiaschools" ; Description: "Générer le code PyQt5 dans Thonny / Dossier par défaut(thonny_tunisiaschools)"; Types: full compact custom;
 Name: "editors\friendly" ; Description: "Afficher une explication des erreurs dans l'assistant Thonny (thonny_friendly)"; Types: full compact custom;
@@ -56,6 +55,9 @@ Source: "thonny_export_exe\*"; DestDir: "{localappdata}\Programs\Python\Python{#
 
 ; FIX : Copier le fichier requirements.txt pour l'installation groupée
 Source: "requirements.txt"; DestDir: "{tmp}"; Flags: ignoreversion
+
+; Copy the specific PyInstaller wheel from the project root to the temp dependency folder
+Source: "pyinstaller-6.18.0-py3-none-win_amd64.whl"; DestDir: "{tmp}\deps\"; Flags: ignoreversion
 
 Source: "python-{#PythonVersion}-{#arch}.exe"; DestDir: "{tmp}"; Flags: ignoreversion ; Components: "python_installer"
 Source: "RefreshEnv.cmd"; DestDir: "{tmp}";
@@ -84,7 +86,7 @@ Filename: "{localappdata}\Programs\Python\Python{#PythonStrictVersion}\python.ex
 
 ; 3. Installation des plugins spécifiques restants
 Filename: "cmd.exe"; \
-    Parameters: "/q /c mode 80,5 && {tmp}\RefreshEnv.cmd && py.exe -m pip install thonny_palestine_flag thonny-autosave thonny-tunisiaschools --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log"; \
+    Parameters: "/q /c mode 80,5 && {tmp}\RefreshEnv.cmd && py.exe -m pip install thonny-autosave thonny-tunisiaschools --upgrade --no-index --prefer-binary --find-links {tmp}\deps >> {tmp}\innosetup.log"; \
     StatusMsg: "Configuration finale des plugins..."; \
     Components: "editors"
 
@@ -93,4 +95,5 @@ procedure InitializeWizard;
 begin
   WizardForm.LicenseMemo.Font.Name:='Consolas'
 end;
+
 
