@@ -3,6 +3,12 @@ import tkinter as tk
 
 def init_plugin():
     wb = get_workbench()
+    
+    # --- DISABLE THONNY DEFAULT AUTOCOMPLETE ---
+    # We force disable the built-in autocomplete options
+    wb.set_option("edit.tab_complete_in_editor", False)
+    wb.set_option("edit.tab_complete_in_shell", False)
+    
     wb.bind("WorkbenchReady", on_ready)
     wb.bind("EditorTextCreated", on_editor_created)
     print("✅ Plugin Snippets & Autoclose Intelligent chargé")
@@ -13,10 +19,26 @@ def on_ready(event):
     if editor_notebook:
         editor = editor_notebook.get_current_editor()
         if editor:
-            bind_events(editor.get_text_widget())
+            text_widget = editor.get_text_widget()
+            bind_events(text_widget)
+            disable_default_trigger(text_widget)
 
 def on_editor_created(event):
     bind_events(event.text_widget)
+    disable_default_trigger(event.text_widget)
+
+def disable_default_trigger(text_widget):
+    """
+    Unbinds the default Thonny autocomplete trigger (Control-Space)
+    so only our plugin logic runs (or nothing runs).
+    """
+    try:
+        # Prevent Thonny from launching its own completion popup
+        text_widget.unbind("<Control-space>")
+        # Also try unbinding from the class level just in case, though risky if used by others
+        # text_widget.unbind_class("EditorText", "<Control-space>") 
+    except Exception:
+        pass
 
 def bind_events(text_widget):
     # --- 1. GESTION PRIORITAIRE (POUR BACKSPACE) ---
