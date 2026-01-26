@@ -13,9 +13,34 @@ def run_conversion(filename, is_gui, progress_win, progress_bar):
     script_name = os.path.basename(filename)
     
     # Préparation de la commande
+    # Préparation de la commande
+    
+    target_script = script_name
+    temp_wrapper = None
+
+    if not is_gui:
+        # Créer un wrapper pour maintenir la console ouverte
+        module_name = os.path.splitext(script_name)[0]
+        temp_wrapper = os.path.join(work_dir, f"{module_name}_wrapper.py")
+        try:
+            with open(temp_wrapper, "w", encoding="utf-8") as f:
+                f.write(f"import {module_name}\n")
+                f.write("import sys\n")
+                f.write("if __name__ == '__main__':\n")
+                f.write("    input('\\nAppuyez sur Entrée pour fermer...')\n")
+            target_script = f"{module_name}_wrapper.py"
+        except Exception as e:
+            print(f"Erreur création wrapper: {e}")
+            target_script = script_name  # Fallback
+
     cmd = [sys.executable, "-m", "PyInstaller", "--noconfirm", "--onefile"]
     cmd.append("--windowed" if is_gui else "--console")
-    cmd.append(script_name)
+    
+    # Si on utilise un wrapper, on veut que l'exe final ait le nom original
+    if temp_wrapper:
+        cmd.extend(["--name", os.path.splitext(script_name)[0]])
+
+    cmd.append(target_script)
 
     try:
         process = subprocess.Popen(
@@ -41,10 +66,16 @@ def run_conversion(filename, is_gui, progress_win, progress_bar):
             messagebox.showerror("Erreur Fatale", 
                 f"La conversion a échoué (Code {process.returncode}).\n\n"
                 f"Consultez le fichier log pour plus de détails :\n{log_file}")
-
     except Exception as e:
         progress_win.after(0, progress_win.destroy)
         messagebox.showerror("Erreur", f"Erreur système : {str(e)}")
+    finally:
+        # Nettoyage du fichier temporaire wrapper
+        if 'temp_wrapper' in locals() and temp_wrapper and os.path.exists(temp_wrapper):
+            try:
+                os.remove(temp_wrapper)
+            except:
+                pass
 
 def check_pyinstaller():
     """Vérifie si PyInstaller est installé."""
