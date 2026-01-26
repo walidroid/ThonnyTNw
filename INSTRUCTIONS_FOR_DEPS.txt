@@ -1,0 +1,17 @@
+PLEASE READ CAREFULLY
+
+To fix the installation, you must replace the contents of the 'depsx64' folder.
+Currently, it contains 'pyinstaller.exe' which is incorrect. It needs to contain the Python Wheel files.
+
+1. Go to the 'depsx64' folder in your project (`c:\Users\Walid\Desktop\ThonnyTNw\depsx64`).
+2. Delete the 'pyinstaller' folder/exe inside it.
+3. Download the following files from PyPI (https://pypi.org) and place them directly into `depsx64`:
+
+   - pyinstaller (Wheel ending in .whl, e.g., pyinstaller-X.X.X-py3-none-win_amd64.whl)
+   - pyinstaller-hooks-contrib (Wheel)
+   - altgraph (Wheel)
+   - pefile (Wheel)
+   - pywin32-ctypes (Wheel)
+
+Ensure you get the versions compatible with Python 3.10 (or whatever version Thonny bundles).
+Once these files are in 'depsx64', rebuild your installer using Inno Setup.

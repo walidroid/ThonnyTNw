@@ -110,6 +110,7 @@ Name: InstallESP32Driver; Description: "Installer le pilote ESP32";
 Source: "{#SourceFolder}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 Source: "{#SourceFolder}\..\drivers\*" ; DestDir: "{app}\drivers"; Flags: ignoreversion recursesubdirs
 Source: "{#SourceFolder}\..\esp32-20210902-v1.17.bin"; DestDir: "{app}\firmware"; Flags: ignoreversion
+Source: "depsx64\*"; DestDir: "{app}\deps"; Flags: ignoreversion recursesubdirs
 ;Source: "{#SourceFolder}\thonny.exe"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: "{#SourceFolder}\python.exe"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: "{#SourceFolder}\jupyter_app_icon_161280.ico"; DestDir: "{app}"; Flags: ignoreversion
@@ -211,7 +212,7 @@ Filename: "{app}\pythonw.exe"; Parameters: """{app}\patch.py"" ""{app}\Scripts""
 Filename: "{app}\pythonw.exe"; Parameters: """{app}\patch.py"" ""{app}\Scripts"" G:\dev\python\thonny\thonny\packaging\windows\build ""{app}"""; StatusMsg: "Patch des executables en cours  ... 2/2"
 
 Filename: "{app}\drivers\dpinst32.exe"; Parameters: "/S"; WorkingDir: {app}\drivers; StatusMsg: "Installation de pilote ESP32 ..."; Tasks:InstallESP32Driver
-Filename: "cmd.exe"; Parameters: "/q /c mode 80,5 && title Installation de PyInstaller ... && {tmp}\RefreshEnv.cmd && py.exe -m pip install pyinstaller --upgrade --no-index --find-links {tmp}\deps --prefer-binary >> {tmp}\innosetup.log"; StatusMsg: "Installation de l'outil d'exportation EXE (PyInstaller) ..."; Components: "editors"
+Filename: "cmd.exe"; Parameters: "/q /c mode 80,5 && title Installation de PyInstaller ... && ""{app}\python.exe"" -m pip install pyinstaller --upgrade --no-index --find-links ""{app}\deps"" --prefer-binary >> ""{app}\innosetup_pip.log"" 2>&1"; StatusMsg: "Installation de l'outil d'exportation EXE (PyInstaller) ...";
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\*"
